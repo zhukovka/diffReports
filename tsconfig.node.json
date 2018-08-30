@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "generators",
+    "sourceMap": true,
+    "jsx": "react"
+  },
+  "include": [
+    "generators/**/*.ts",
+    "generators/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
