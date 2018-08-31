@@ -4,21 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha -r ts-node/register tests/**/*.test.ts",
     "build": "webpack --display-error-details",
     "watch": "webpack --watch",
-    "dev:generators": "NODE_ENV=development tsc -p tsconfig.node.json"
+    "dev:build-generators": "NODE_ENV=development webpack --config webpack.generators.js --mode=development --display-error-details"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
     "@types/react": "^16.4.13",
     "@types/react-dom": "^16.0.7",
+    "chai": "^4.1.2",
     "css-loader": "^1.0.0",
     "mini-css-extract-plugin": "^0.4.2",
     "mocha": "^5.2.0",
     "style-loader": "^0.23.0",
     "ts-loader": "^4.5.0",
+    "ts-node": "^7.0.1",
     "typescript": "^3.0.3",
     "webpack": "^4.17.1",
     "webpack-cli": "^3.1.0",

@@ -65,3 +65,5 @@ Temporary Items
 
 /diffReports.iml
 /node_modules/
+/generators/generators/
+/generators/src/

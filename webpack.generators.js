@@ -14,12 +14,18 @@ module.exports = {
         filename: '[name].js',
         path: path.resolve(__dirname, 'generators')
     },
-
+    resolve: {
+        extensions: ['.tsx', '.ts', '.js']
+    },
     module: {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: 'ts-loader'
+                use: [
+                    {
+                        loader: 'ts-loader'
+                    }
+                ]
             }
         ]
     }
