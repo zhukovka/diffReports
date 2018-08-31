@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import App from "./app";
+import App from "./App";
 
 fetch("/projects/projects.json").then(res => res.json()).then(projects => {
     ReactDOM.render(
