@@ -18,6 +18,7 @@
     "@types/react-dom": "^16.0.7",
     "chai": "^4.1.2",
     "css-loader": "^1.0.0",
+    "isomorphic-style-loader": "^4.0.0",
     "mini-css-extract-plugin": "^0.4.2",
     "mocha": "^5.2.0",
     "style-loader": "^0.23.0",
