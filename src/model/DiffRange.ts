@@ -1,7 +1,7 @@
 import {Range} from "./Range";
 
 export enum MatchType {
-    ADDED, REMOVED, MATCH, CHANGED, MOVED, MOVED_FROM, MOVED_TO
+    ADDED = "ADDED", REMOVED = "REMOVED", MATCH = "MATCH", CHANGED = "CHANGED", MOVED = "MOVED", MOVED_FROM = "MOVED_FROM", MOVED_TO = "MOVED_TO"
 }
 
 export interface DiffRange {

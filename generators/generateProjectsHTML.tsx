@@ -3,21 +3,23 @@ import {renderToString} from "react-dom/server";
 import * as fs from "fs";
 import {Project} from "../src/model/Project";
 import {DiffRange} from "../src/model/DiffRange";
-import DiffRangesApp from "../src/DiffRangesApp";
+import DiffReport from "../src/DiffReport";
 import {Video} from "../src/model/Video";
 
-function htmlTemplate (title: string, reactDom: string) {
+function htmlTemplate (title: string, reactDom: string, script: string) {
     return `
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="utf-8">
             <title>${ title }</title>
+            <link rel="stylesheet" href="/dist/project.css">
         </head>
 
         <body>
-            <div id="app1">${ reactDom }</div>
+            <div id="app">${ reactDom }</div>
             <script src="/dist/project.bundle.js"></script>
+            ${script}
         </body>
         </html>
     `;
@@ -52,10 +54,14 @@ function generateHTML (projectId: string, comparedMov: string) {
     const sourceMov = project.masterId;
     const sourceVideo = readVideoJson(sourceMov);
     const comparedVideo = readVideoJson(comparedMov);
-    const app = renderToString(<DiffRangesApp ranges={readRangesJson(projectId, comparedMov)}
-                                              sourceVideo={sourceVideo}
-                                              comparedVideo={comparedVideo}/>);
-    const html = htmlTemplate(projectId, app);
+    let ranges = readRangesJson(projectId, comparedMov);
+    const app = renderToString(<DiffReport ranges={ranges}
+                                           sourceVideo={sourceVideo}
+                                           comparedVideo={comparedVideo}/>);
+    const script = `<script>
+            diffReport(${JSON.stringify(ranges)}, ${JSON.stringify(sourceVideo)}, ${JSON.stringify(comparedVideo)});
+    </script>`;
+    const html = htmlTemplate(projectId, app, script);
     writeRangesHTML(projectId, html);
     return `./projects/mrestore-projects/${projectId}/index.html`;
 }
