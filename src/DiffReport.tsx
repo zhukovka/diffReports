@@ -112,11 +112,11 @@ class DiffReport extends React.Component<Props, State> {
             </div>)
     }
 
-    private getSrc (page: number, video: Video) {
+    getSrc = (page: number, video: Video) => {
         // @ts-ignore
         let padStart = String(page + 1).padStart(3, '0');
-        return `/projects/storage/${video.id}/stripes/square/out${padStart}.jpg`;
-    }
+        return `${video.id}/stripes/out${padStart}.jpg`;
+    };
 
     private toggleType (type: string) {
         // @ts-ignore
