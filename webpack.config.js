@@ -7,7 +7,7 @@ module.exports = {
         project: './src/project.tsx'
     },
     devtool: 'inline-source-map',
-    mode: 'development',
+    mode: (process.env.NODE_ENV === 'development') ? 'development' : 'production',
     plugins: [
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output

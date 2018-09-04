@@ -7,7 +7,9 @@
     "test": "mocha -r ts-node/register tests/**/*.test.ts",
     "build": "webpack --display-error-details",
     "watch": "webpack --watch",
-    "dev:build-generators": "NODE_ENV=development webpack --config webpack.generators.js --mode=development --display-error-details"
+    "dev:build-generators": "NODE_ENV=development webpack --config webpack.generators.js --mode=development --display-error-details",
+    "prod:build-generators": "webpack --config webpack.generators.js --mode=production --display-error-details",
+    "bundle": "NODE_ENV=production npm run build && npm run prod:build-generators && NODE_ENV=production node generators/generateProjectsHTML.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +19,9 @@
     "@types/react": "^16.4.13",
     "@types/react-dom": "^16.0.7",
     "chai": "^4.1.2",
+    "commander": "^2.17.1",
     "css-loader": "^1.0.0",
+    "dotenv": "^6.0.0",
     "isomorphic-style-loader": "^4.0.0",
     "mini-css-extract-plugin": "^0.4.2",
     "mocha": "^5.2.0",
