@@ -41,7 +41,7 @@ function readProjectJson (projectId: string): Project {
 }
 
 function writeRangesHTML (sourceId: string, html: string) {
-    fs.writeFileSync(`./projects/mrestore-projects/${sourceId}/index.html`, html, 'utf8');
+    fs.writeFileSync(`./reports/${sourceId}/index.html`, html, 'utf8');
 }
 
 function readVideoJson (mov: string): Video {
@@ -63,7 +63,7 @@ function generateHTML (projectId: string, comparedMov: string) {
     </script>`;
     const html = htmlTemplate(projectId, app, script);
     writeRangesHTML(projectId, html);
-    return `./projects/mrestore-projects/${projectId}/index.html`;
+    return `./reports/${projectId}/index.html`;
 }
 
 
