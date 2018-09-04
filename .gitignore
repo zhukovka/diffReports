@@ -68,3 +68,6 @@ Temporary Items
 /generators/generators/
 /generators/src/
 /projects/
+/.env
+/dist/
+/reports/
