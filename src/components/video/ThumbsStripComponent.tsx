@@ -23,15 +23,15 @@ class ThumbsStripComponent extends React.Component<Props, any> {
         let dx = 0;
 
         const images = Object.keys(strips).map((page, i) => {
-
-            return fetch(getSrc(+page)).then(res => res.blob()).then(blob => createImageBitmap(blob))
-                .then(img => {
-                    for (const strip of strips[page]) {
-                        ctx.drawImage(img, strip.x, strip.y, strip.width, strip.height, dx, 0, strip.width, strip.height);
-                        dx += strip.width;
-                    }
-                    return img;
-                });
+            const img = new Image();
+            img.src = getSrc(+page);
+            img.onload = () => {
+                for (const strip of strips[page]) {
+                    ctx.drawImage(img, strip.x, strip.y, strip.width, strip.height, dx, 0, strip.width, strip.height);
+                    dx += strip.width;
+                }
+            };
+            return img;
         });
 
     };
