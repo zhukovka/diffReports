@@ -5,6 +5,9 @@ import {Video} from "./model/Video";
 import Row from "./components/layout/Row";
 import ThumbsStrip from "./model/ThumbsStrip";
 import Col from "./components/layout/Col";
+import "./style.css";
+import List from "./components/layout/List";
+import VideoComponent from "./components/video/VideoComponent";
 
 interface Props {
     ranges: DiffRange[];
@@ -13,6 +16,7 @@ interface Props {
 }
 
 interface State {
+    types: { [type: string]: boolean };
 }
 
 const COLS = 10;
@@ -27,6 +31,10 @@ class DiffReport extends React.Component<Props, State> {
         if (props.sourceVideo) {
             this.thumbsStrip = new ThumbsStrip(COLS, props.sourceVideo.timecodeRate, FRAME_WIDTH, FRAME_HEIGHT);
         }
+        this.state = {
+            // @ts-ignore
+            types : Object.assign({}, MatchType)
+        };
     }
 
     componentDidMount () {
@@ -35,6 +43,7 @@ class DiffReport extends React.Component<Props, State> {
 
     render () {
         const {ranges, comparedVideo, sourceVideo} = this.props;
+        const {types} = this.state;
         const eventsCount = ranges.reduce((counts: any, range) => {
             if (!counts[range.matchType]) {
                 counts[range.matchType] = 0;
@@ -43,39 +52,59 @@ class DiffReport extends React.Component<Props, State> {
             return counts;
         }, {});
         return (
-            <div>
-                <Row>
-                    <div>
-                        COMPARE REPORT
-                    </div>
-                    <Col col={2}>
-                        COMPARED TO
-                    </Col>
-                </Row>
-                <Row>
-                    <Col col={1}>
-                        File 1
-                        {sourceVideo.id}
+            <div className={"DiffReport"}>
+                <Row className={"DiffReport__header"} gap={"10px"}>
+                    <Col>
+                        <h1>
+                            COMPARE REPORT
+                        </h1>
+                        <div>
+                            Combined results
+                        </div>
                     </Col>
                     <Col col={1}>
-                        File 2
-                        {comparedVideo.id}
+                        <Row gap={"10px"}>
+                            <Col col={1} className={"text-end"}>
+                                <p>
+                                    File 1
+                                </p>
+                                <VideoComponent video={sourceVideo}/>
+                            </Col>
+                            <Col>
+                                <p>
+                                    COMPARED TO
+                                </p>
+                            </Col>
+                            <Col col={1}>
+                                <p>File 2</p>
+                                <VideoComponent video={comparedVideo}/>
+                            </Col>
+                        </Row>
                     </Col>
-                    <div>
-                        Compare events:
-                        <ul>
-                            {Object.keys(MatchType).map(type => {
-                                return (
-                                    <li key={type}>
-                                        {type} ({eventsCount[type] || 0})
-                                    </li>
-                                )
-                            })}
-                        </ul>
-                    </div>
+                    <Col>
+                        <Row>
+                            <div>
+                                Compare events:
+                            </div>
+                            <List>
+                                {Object.keys(MatchType).map(type => {
+                                    return (
+                                        <li key={type}>
+                                            <input type="checkbox" id={type} value={type}
+                                                   checked={!!types[type]}
+                                                   onChange={e => this.toggleType(type)}/>
+                                            <label htmlFor={type}>
+                                                {type} ({eventsCount[type] || 0})
+                                            </label>
+                                        </li>
+                                    )
+                                })}
+                            </List>
+                        </Row>
+                    </Col>
                 </Row>
-                <div>
-                    {ranges.map((range, i) => (
+                <div className={"DiffReport__ranges"}>
+                    {ranges.filter(r => !!types[r.matchType]).map((range, i) => (
                         <DiffRangeComponent key={i} range={range} comparedVideo={comparedVideo}
                                             sourceVideo={sourceVideo} getSrc={this.getSrc}
                                             thumbsStrip={this.thumbsStrip}/>))}
@@ -87,6 +116,13 @@ class DiffReport extends React.Component<Props, State> {
         // @ts-ignore
         let padStart = String(page + 1).padStart(3, '0');
         return `/projects/storage/${video.id}/stripes/square/out${padStart}.jpg`;
+    }
+
+    private toggleType (type: string) {
+        // @ts-ignore
+        const types = Object.assign({}, this.state.types);
+        types[type] = !this.state.types[type];
+        this.setState({types});
     }
 }
 

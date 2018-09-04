@@ -1,7 +1,22 @@
 export interface ReactElementProps {
-    children?: any
+    children?: any;
+    className?: string
 }
 
-export type Align = "center" | "flex-start";
+export type Align = "center"
+    | "start"
+    | "end"
+    | "flex-start"
+    | "flex-end"
+    | "stretch";
 
-export type Justify = "center" | "flex-start";
+export type Justify =
+    "center"
+    | "start"
+    | "end"
+    | "flex-start"
+    | "flex-end"
+    | "stretch"
+    | "space-between"
+    | "space-around"
+    | "space-evenly";

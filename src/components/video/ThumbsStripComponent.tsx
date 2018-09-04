@@ -1,5 +1,6 @@
 import ThumbsStrip, {Strip} from "../../model/ThumbsStrip";
 import * as React from "react";
+import "./video.css";
 
 interface Props {
     getSrc: (page: number) => string;
@@ -16,8 +17,7 @@ class ThumbsStripComponent extends React.Component<Props, any> {
         }
         const ctx = canvas.getContext('2d');
         const {thumbsStrip, startFrame, endFrame, getSrc} = this.props;
-        canvas.width = thumbsStrip.frameWidth * (endFrame - startFrame + 1);
-        canvas.height = thumbsStrip.frameHeight;
+
         //ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
         const strips: { [page: string]: Strip[] } = thumbsStrip.stripsForFrames(startFrame, endFrame);
         let dx = 0;
@@ -37,8 +37,11 @@ class ThumbsStripComponent extends React.Component<Props, any> {
     };
 
     render () {
-        return <div>
-            <canvas ref={this.setupCanvas}/>
+        const {thumbsStrip, startFrame, endFrame, getSrc} = this.props;
+        const width = thumbsStrip.frameWidth * (endFrame - startFrame + 1);
+        const height = thumbsStrip.frameHeight;
+        return <div className={"ThumbsStripComponent"}>
+            <canvas ref={this.setupCanvas} width={width} height={height}/>
         </div>
     }
 }

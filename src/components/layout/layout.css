@@ -1,16 +1,162 @@
+:root {
+    --row-gap: 0;
+    --placeholder-width: 0;
+    --placeholder-height: 0;
+    --placeholder-background: rgba(0, 0, 0, 0.3);
+}
+
+/* Positional alignment */
+/* align-items does not take left and right values */
+.align-center {
+    align-items: center; /* Pack items around the center */
+}
+
+.align-stretch {
+    align-items: stretch;
+}
+
+.align-start {
+    align-items: flex-start; /* Pack flex items from the start */
+}
+
+.align-end {
+    align-items: flex-end; /* Pack flex items from the end */
+}
+
+.align-self-center {
+    align-self: center; /* Pack items around the center */
+}
+
+.align-self-stretch {
+    align-self: stretch;
+}
+
+.align-self-start {
+    align-self: flex-start; /* Pack flex items from the start */
+}
+
+.align-self-end {
+    align-self: flex-end; /* Pack flex items from the end */
+}
+
+/* Baseline alignment */
+.align-baseline {
+    align-items: baseline;
+}
+
+.align-first-baseline {
+    align-items: first baseline;
+}
+
+.align-last-baseline {
+    align-items: last baseline; /* Overflow alignment (for positional alignment only) */
+}
+
+.align-safe-center {
+    align-items: safe center;
+}
+
+/* Positional alignment */
+.justify-center {
+    justify-content: center; /* Pack items around the center */
+}
+
+.justify-start {
+
+    justify-content: flex-start; /* Pack flex items from the start */
+}
+
+.justify-end {
+
+    justify-content: flex-end; /* Pack flex items from the end */
+}
+
+.justify-left {
+
+    justify-content: left; /* Pack items from the left */
+}
+
+.justify-right {
+
+    justify-content: right; /* Pack items from the right */
+}
+
+/* Distributed alignment */
+.justify-between {
+
+    justify-content: space-between;
+    /* Distribute items evenly
+                                      The first item is flush with the start,
+                                      the last is flush with the end */
+}
+
+.justify-around {
+
+    justify-content: space-around;
+    /* Distribute items evenly
+                                     Items have a half-size space
+                                     on either end */
+}
+
+.justify-evenly {
+
+    justify-content: space-evenly;
+    /* Distribute items evenly
+                                     Items have equal space around them */
+}
+
+.justify-stretch {
+
+    justify-content: stretch;
+    /* Distribute items evenly
+                                Stretch 'auto'-sized items to fit
+                                the container */
+}
+
+.direction-row {
+    flex-direction: row;
+}
+
+.direction-col {
+    flex-direction: column;
+}
+
 .row {
     display: flex;
     flex-wrap: wrap;
+}
+
+.col:not(:first-child):not(:last-child) {
+    margin: 0 var(--row-gap, 0);
 }
 
 .col-1 {
     flex: 1;
 }
 
-.col-2{
+.col-2 {
     flex: 2;
 }
 
-.col-3{
+.col-3 {
     flex: 3;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+}
+
+.text-end {
+    text-align: end;
+}
+
+.text-bold {
+    font-weight: bold;
+}
+
+.placeholder {
+    width: var(--placeholder-width);
+    height: var(--placeholder-height);
+    background: var(--placeholder-background);
 }

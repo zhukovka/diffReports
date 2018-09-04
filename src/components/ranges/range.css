@@ -1,0 +1,41 @@
+.range {
+    list-style: none;
+    margin: 0;
+}
+
+.matchType__description {
+    font-size: 1.4rem;
+}
+
+.matchType-added {
+    background: darkcyan;
+}
+
+.matchType-removed {
+    background: red;
+}
+
+.matchType-match {
+    background: darkblue;
+}
+
+.matchType-changed {
+    background: darkgreen;
+}
+
+.matchType-moved {
+    background: orange;
+}
+
+.matchType-moved_from {
+    background: fuchsia;
+}
+
+.matchType-moved_to {
+    background: mediumseagreen;
+}
+
+.DiffRangeComponent {
+    border-bottom: 1px solid lightslategrey;
+    padding: 5px;
+}
