@@ -1,6 +1,6 @@
 export interface ReactElementProps {
     children?: any;
-    className?: string
+    className?: string;
 }
 
 export type Align = "center"

@@ -14,19 +14,24 @@ program
     .option('-c, --comparedMov <mov>', 'Compared video id')
     .parse(process.argv);
 
+
 function htmlTemplate (title: string, reactDom: string, script: string) {
+    let staticDir = '.';
+    if (process.env.NODE_ENV !== 'production') {
+        staticDir = `/${process.env.BUNDLE_PATH}`;
+    }
     return `
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="utf-8">
             <title>${ title }</title>
-            <link rel="stylesheet" href="project.css">
+            <link rel="stylesheet" href="${staticDir}/project.css">
         </head>
 
         <body>
             <div id="app">${ reactDom }</div>
-            <script src="project.bundle.js"></script>
+            <script src="${staticDir}/project.bundle.js"></script>
             ${script}
         </body>
         </html>
@@ -79,12 +84,12 @@ function generateHTML (projectId: string, comparedMov: string) {
 
 let {projectId, comparedMov} = program;
 
+
 if (process.env.NODE_ENV == 'production') {
-    fs.copyFileSync('./dist/project.bundle.js', `./reports/${projectId}/project.bundle.js`);
-    fs.copyFileSync('./dist/project.css', `./reports/${projectId}/project.css`);
+    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `./reports/${projectId}/project.bundle.js`);
+    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `./reports/${projectId}/project.css`);
 //    mkdir -p reports/salt_color_trim3k/salt_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/square/ "$_"
 }
-
 console.log(generateHTML(projectId, comparedMov));
 
 

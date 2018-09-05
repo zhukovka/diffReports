@@ -1,4 +1,5 @@
 import * as React from "react";
+import {MouseEvent} from "react";
 import {DiffRange, MatchType} from "./model/DiffRange";
 import DiffRangeComponent from "./components/ranges/DiffRangeComponent";
 import {Video} from "./model/Video";
@@ -8,6 +9,8 @@ import Col from "./components/layout/Col";
 import "./style.css";
 import List from "./components/layout/List";
 import VideoComponent from "./components/video/VideoComponent";
+import {LayoutMode} from "./common/LayoutMode";
+import ThumbsStripComponent from "./components/video/ThumbsStripComponent";
 
 interface Props {
     ranges: DiffRange[];
@@ -17,6 +20,7 @@ interface Props {
 
 interface State {
     types: { [type: string]: boolean };
+    range: DiffRange;
 }
 
 const COLS = 10;
@@ -32,8 +36,8 @@ class DiffReport extends React.Component<Props, State> {
             this.thumbsStrip = new ThumbsStrip(COLS, props.sourceVideo.timecodeRate, FRAME_WIDTH, FRAME_HEIGHT);
         }
         this.state = {
-            // @ts-ignore
-            types : Object.assign({}, MatchType)
+            range : null,
+            types : Object.assign({}, MatchType as any)
         };
     }
 
@@ -104,10 +108,7 @@ class DiffReport extends React.Component<Props, State> {
                     </Col>
                 </Row>
                 <div className={"DiffReport__ranges"}>
-                    {ranges.filter(r => !!types[r.matchType]).map((range, i) => (
-                        <DiffRangeComponent key={i} range={range} comparedVideo={comparedVideo}
-                                            sourceVideo={sourceVideo} getSrc={this.getSrc}
-                                            thumbsStrip={this.thumbsStrip}/>))}
+                    {this.renderRanges()}
                 </div>
             </div>)
     }
@@ -117,6 +118,26 @@ class DiffReport extends React.Component<Props, State> {
         let padStart = String(page + 1).padStart(3, '0');
         return `${video.id}/stripes/out${padStart}.jpg`;
     };
+
+    onRangeClick = (range: DiffRange) => {
+        this.setState({range});
+    };
+
+    private renderRanges () {
+        const {ranges, comparedVideo, sourceVideo} = this.props;
+        const {types} = this.state;
+        return ranges.filter(r => !!types[r.matchType]).map((range, i) => {
+            let props = {
+                range, comparedVideo, sourceVideo,
+                getSrc : this.getSrc,
+                thumbsStrip : this.thumbsStrip,
+                layout : this.state.range == range ? LayoutMode.DETAILED : LayoutMode.BASIC,
+                onClick : this.onRangeClick
+            };
+            return (<DiffRangeComponent key={i} {...props}/>);
+        });
+    }
+
 
     private toggleType (type: string) {
         // @ts-ignore

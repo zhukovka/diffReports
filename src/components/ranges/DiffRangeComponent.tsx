@@ -10,6 +10,7 @@ import Col from "../layout/Col";
 import "./range.css";
 import {classNameFrom} from "../../utils/CSSUtils";
 import Placeholder from "../layout/Placeholder";
+import {LayoutMode} from "../../common/LayoutMode";
 
 interface Props extends ReactElementProps {
     range: DiffRange;
@@ -17,6 +18,8 @@ interface Props extends ReactElementProps {
     comparedVideo: Video;
     thumbsStrip: ThumbsStrip;
     getSrc: (page: number, video: Video) => string;
+    layout: LayoutMode;
+    onClick?: (range: DiffRange) => void;
 }
 
 function matchTypeDescription (range: DiffRange): string {
@@ -39,52 +42,71 @@ function matchTypeDescription (range: DiffRange): string {
     return `${r1.length} frames in File 1 were ${matchType} with ${r2.length} frames in File 2`;
 }
 
+function renderThumbs (range: DiffRange, sourceVideo: Video, comparedVideo: Video, thumbsStrip: ThumbsStrip, getSrc: (page: number, video: Video) => string) {
+    const {r1, r2, matchType} = range;
+
+    return (<ThumbsStripComponent endFrame={r1.frame + r1.length - 1} startFrame={r1.frame}
+                                  getSrc={page => getSrc(page, sourceVideo)}
+                                  thumbsStrip={thumbsStrip}/>)
+}
+
 //fps*10 размером 120*68
-const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getSrc, className}: Props) => {
+const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getSrc, className, layout, onClick}: Props) => {
     const {r1, r2, matchType} = range;
 
     return (
-        <Row align={"center"} className={`DiffRangeComponent ${classNameFrom(className)}`}>
-            <Col className={`matchType-${matchType.toLowerCase()}`}>
-                {r1.length ? <ThumbsStripComponent endFrame={r1.frame} startFrame={r1.frame}
-                                                   getSrc={page => getSrc(page, sourceVideo)}
-                                                   thumbsStrip={thumbsStrip}/>
-                    : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
-                }
-                {r2.length ? <ThumbsStripComponent endFrame={r2.frame} startFrame={r2.frame}
-                                                   getSrc={page => getSrc(page, comparedVideo)}
-                                                   thumbsStrip={thumbsStrip}/>
-                    : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
-                }
-            </Col>
-            <Row direction={"col"} alignSelf={"stretch"}>
-                <Col col={1}>
-                    <div>
-                        File 1
-                    </div>
-                    <RangeComponent range={r1}/>
+        <div className={`DiffRangeComponent ${classNameFrom(className)}`}>
+            <Row align={"center"}>
+                <Col className={`matchType-${matchType.toLowerCase()}`}>
+                    {r1.length ? <ThumbsStripComponent endFrame={r1.frame} startFrame={r1.frame}
+                                                       getSrc={page => getSrc(page, sourceVideo)}
+                                                       thumbsStrip={thumbsStrip}/>
+                        : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
+                    }
+                    {r2.length ? <ThumbsStripComponent endFrame={r2.frame} startFrame={r2.frame}
+                                                       getSrc={page => getSrc(page, comparedVideo)}
+                                                       thumbsStrip={thumbsStrip}/>
+                        : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
+                    }
                 </Col>
-                <Col col={1}>
-                    <div>File 2</div>
-                    <RangeComponent range={r2}/>
+                <Row direction={"col"} alignSelf={"stretch"}>
+                    <Col col={1}>
+                        <div>
+                            File 1
+                        </div>
+                        <RangeComponent range={r1}/>
+                    </Col>
+                    <Col col={1}>
+                        <div>File 2</div>
+                        <RangeComponent range={r2}/>
+                    </Col>
+                    <Col>
+                        <div>
+                            Match type: {matchType}
+                        </div>
+                    </Col>
+                </Row>
+                <Col col={3}>
+                    <Row justify={"center"} className={"matchType__description"}>
+                        {matchTypeDescription(range)}
+                    </Row>
                 </Col>
                 <Col>
-                    <div>
-                        Match type: {matchType}
-                    </div>
+                    {layout == LayoutMode.BASIC ?
+                        <button onClick={() => onClick(range)}>
+                            DETAILS
+                        </button> :
+                        <textarea name="notes" id="" cols={30} rows={10}
+                                  placeholder="User defined description / Notes:"/>
+                    }
                 </Col>
             </Row>
-            <Col col={3}>
-                <Row justify={"center"} className={"matchType__description"}>
-                    {matchTypeDescription(range)}
-                </Row>
-            </Col>
-            <Col>
-                <button>
-                    DETAILS
-                </button>
-            </Col>
-        </Row>
+            {layout == LayoutMode.DETAILED &&
+            <Row>
+                {renderThumbs(range, sourceVideo, comparedVideo, thumbsStrip, getSrc)}
+            </Row>
+            }
+        </div>
     )
 };
 
