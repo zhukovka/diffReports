@@ -235,5 +235,48 @@ describe('Thumbs calculating function', () => {
             console.log(stripsToCanvas);
         }
     });
-});
 
+    it('should map source strips to destination rows', function () {
+        let sourceStips = [
+            {x : 3, y : 0, width : 4, height : 1, frames : 4},//s1
+            {x : 0, y : 1, width : 7, height : 1, frames : 7},//s2
+            {x : 0, y : 2, width : 2, height : 1, frames : 2},//s3
+            {x : 2, y : 2, width : 5, height : 1, frames : 5},//s4
+            {x : 0, y : 3, width : 3, height : 1, frames : 3},//s5
+        ];
+        let expected = [
+            [   //s1
+                [{x : 3, y : 0, width : 4, height : 1, frames : 4}, {x : 0, y : 0, width : 4, height : 1, frames : 4}],
+                //s2
+                [{x : 0, y : 1, width : 3, height : 1, frames : 3}, {x : 4, y : 0, width : 3, height : 1, frames : 3}]
+            ],
+            [   //s2
+                [{x : 3, y : 1, width : 4, height : 1, frames : 4}, {x : 0, y : 1, width : 4, height : 1, frames : 4}],
+                //s3
+                [{x : 0, y : 2, width : 2, height : 1, frames : 2}, {x : 4, y : 1, width : 2, height : 1, frames : 2}],
+                //s4
+                [{x : 2, y : 2, width : 1, height : 1, frames : 1}, {x : 6, y : 1, width : 1, height : 1, frames : 1}]
+            ],
+            [   //s4
+                [{x : 3, y : 2, width : 4, height : 1, frames : 4}, {x : 0, y : 2, width : 4, height : 1, frames : 4}],
+                //s5
+                [{x : 0, y : 3, width : 3, height : 1, frames : 3}, {x : 4, y : 2, width : 3, height : 1, frames : 3}]
+            ]
+        ];
+        const thumbs1 = new ThumbsStrip(7, 24, 1, 1);
+        let rows = thumbs1.stripsMapToRows(sourceStips, 7);
+        // console.log(rows[0]);
+        expect([...rows[0]]).to.deep.equal(expected[0]);
+        // console.log(rows[1]);
+        expect([...rows[1]]).to.deep.equal(expected[1]);
+        console.log(rows[2]);
+        expect([...rows[2]]).to.deep.equal(expected[2]);
+    });
+
+    it('should calculate page number for a frame number', function () {
+        let page = thumbs.pageForFrame(239);
+        expect(page).to.equal(0);
+        let page1 = thumbs.pageForFrame(240);
+        expect(page1).to.equal(1);
+    });
+});

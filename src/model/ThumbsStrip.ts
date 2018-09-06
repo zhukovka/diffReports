@@ -10,6 +10,10 @@ class ThumbsStrip {
     constructor (public cols: number, public rows: number, public frameWidth: number, public frameHeight: number) {
     }
 
+    pageForFrame (frameNumber: number): number {
+        return (frameNumber / this.cols / this.rows) | 0;
+    }
+
     stripsForFrames (from: number, to: number): { [page: number]: Strip[] } {
         const storyboard: { [page: string]: Strip[] } = {};
         let startRow = (from / this.cols) | 0;
@@ -69,6 +73,52 @@ class ThumbsStrip {
     }
 
 
+    stripsMapToRows (sourceStrips: Strip[], cols: number): Map<Strip, Strip>[] {
+        let rows: Map<Strip, Strip>[] = [];
+        //we have sourceStrips to map to rows of n cols
+        let frameHeight = this.frameHeight;
+        let frameWidth = this.frameWidth;
+        let room = cols;
+        let offset = 0;
+        let row;
+        let height = frameHeight;
+        let dX = 0;
+        for (const sourceStrip of sourceStrips) {
+            let framesInStrip = sourceStrip.frames;
+            const rowsInStrip = ((framesInStrip + offset) / cols | 0) + 1;
+
+            let {x : sX, y : sY, width : sW} = sourceStrip;
+            let r = 0;
+            while (r < rowsInStrip) {
+                //new destination row
+                if (!offset) {
+                    row = new Map();
+                    rows.push(row);
+                }
+                const framesToDraw = Math.min(room, framesInStrip);
+                let width = framesToDraw * frameWidth;
+
+                let src = {x : sX, y : sY, width, height, frames : framesToDraw};
+
+                let dY = (rows.length - 1) * height;
+                let dest = {x : dX, y : dY, width, height, frames : framesToDraw};
+
+                row.set(src, dest);
+
+                sX += framesToDraw * frameWidth;
+                dX = (dX + framesToDraw * frameWidth) % cols;
+
+                framesInStrip -= framesToDraw;
+
+                room = room - framesToDraw || cols;
+
+                offset = (offset + framesToDraw) % cols;
+
+                r++;
+            }
+        }
+        return rows;
+    }
 }
 
 export default ThumbsStrip;

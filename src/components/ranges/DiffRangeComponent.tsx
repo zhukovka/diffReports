@@ -1,16 +1,18 @@
 import {ReactElementProps} from "../../common/react-interfaces";
 import {DiffRange, MatchType} from "../../model/DiffRange";
+import {Range} from "../../model/Range";
 import Row from "../layout/Row";
 import * as React from "react";
 import {Video} from "../../model/Video";
 import ThumbsStripComponent from "../video/ThumbsStripComponent";
-import ThumbsStrip from "../../model/ThumbsStrip";
+import ThumbsStrip, {Strip} from "../../model/ThumbsStrip";
 import {RangeComponent} from "./RangeComponent";
 import Col from "../layout/Col";
 import "./range.css";
 import {classNameFrom} from "../../utils/CSSUtils";
 import Placeholder from "../layout/Placeholder";
 import {LayoutMode} from "../../common/LayoutMode";
+import {flatten} from "../../utils/ArrayUtils";
 
 interface Props extends ReactElementProps {
     range: DiffRange;
@@ -45,27 +47,46 @@ function matchTypeDescription (range: DiffRange): string {
 function renderThumbs (range: DiffRange, sourceVideo: Video, comparedVideo: Video, thumbsStrip: ThumbsStrip, getSrc: (page: number, video: Video) => string) {
     const {r1, r2, matchType} = range;
 
-    return (<ThumbsStripComponent endFrame={r1.frame + r1.length - 1} startFrame={r1.frame}
-                                  getSrc={page => getSrc(page, sourceVideo)}
-                                  thumbsStrip={thumbsStrip}/>)
+    return (<div>
+        {/*<ThumbsStripComponent endFrame={r1.frame + r1.length - 1} startFrame={r1.frame}*/}
+        {/*getSrc={page => getSrc(page, sourceVideo)}*/}
+        {/*thumbsStrip={thumbsStrip}/>*/}
+    </div>)
 }
 
-//fps*10 размером 120*68
 const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getSrc, className, layout, onClick}: Props) => {
     const {r1, r2, matchType} = range;
+    let getThumbsStripComponent = function (range: Range, length: number, sourceVideo: Video) {
+        let srcStripPages: { [page: number]: Strip[] } = thumbsStrip.stripsForFrames(range.frame, range.frame + length - 1);
 
+
+        let srcStrips = flatten(Object.values(srcStripPages));
+
+        // Object.keys(srcStripPages).map((page, i) => {
+        let cols = 10;
+        let rowStrips = thumbsStrip.stripsMapToRows(srcStrips, cols);
+        //     return rowStrips;
+        // });
+        let width = thumbsStrip.frameWidth * length;
+        let height = thumbsStrip.frameHeight;
+        return rowStrips.map((strip, i) => {
+            return <ThumbsStripComponent key={i} strip={strip}
+                                         width={width}
+                                         height={height}
+                                         getSrc={r => {
+                                             let page = thumbsStrip.pageForFrame(range.frame);
+                                             return getSrc(page, sourceVideo);
+                                         }}/>;
+        })
+    };
     return (
         <div className={`DiffRangeComponent ${classNameFrom(className)}`}>
             <Row align={"center"}>
                 <Col className={`matchType-${matchType.toLowerCase()}`}>
-                    {r1.length ? <ThumbsStripComponent endFrame={r1.frame} startFrame={r1.frame}
-                                                       getSrc={page => getSrc(page, sourceVideo)}
-                                                       thumbsStrip={thumbsStrip}/>
+                    {r1.length ? getThumbsStripComponent(r1, 1, sourceVideo)
                         : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
                     }
-                    {r2.length ? <ThumbsStripComponent endFrame={r2.frame} startFrame={r2.frame}
-                                                       getSrc={page => getSrc(page, comparedVideo)}
-                                                       thumbsStrip={thumbsStrip}/>
+                    {r2.length ? getThumbsStripComponent(r1, 1, comparedVideo)
                         : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
                     }
                 </Col>
