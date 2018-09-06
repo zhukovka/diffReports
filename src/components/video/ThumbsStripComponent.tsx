@@ -1,10 +1,10 @@
-import {Strip} from "../../model/ThumbsStrip";
+import {FrameStrip, Strip} from "../../model/ThumbsStrip";
 import * as React from "react";
 import "./video.css";
 
 interface Props {
-    getSrc: (page: number) => string;
-    strip: Map<Strip, Strip>,
+    getSrc: (frame: number) => string;
+    strip: Map<FrameStrip, Strip>,
     width: number,
     height: number
 }
@@ -20,7 +20,7 @@ class ThumbsStripComponent extends React.Component<Props, any> {
         const images = [...strip.keys()].map((src, i) => {
             let dest = strip.get(src);
             const img = new Image();
-            img.src = getSrc(i);
+            img.src = getSrc(src.startFrame);
             img.onload = () => {
                 ctx.drawImage(img, src.x, src.y, src.width, src.height, dest.x, dest.y, dest.width, dest.height);
             };

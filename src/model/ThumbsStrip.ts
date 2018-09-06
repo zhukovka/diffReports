@@ -6,6 +6,10 @@ export interface Strip {
     frames: number
 }
 
+export interface FrameStrip extends Strip {
+    startFrame: number;
+}
+
 class ThumbsStrip {
     constructor (public cols: number, public rows: number, public frameWidth: number, public frameHeight: number) {
     }
@@ -116,6 +120,57 @@ class ThumbsStrip {
 
                 r++;
             }
+        }
+        return rows;
+    }
+
+    framesToCanvas (startFrame: number, length: number, dCols: number): Map<FrameStrip, Strip>[] {
+        let height = this.frameHeight;
+        let frameWidth = this.frameWidth;
+        let endFrame = startFrame + length;
+        let rows: Map<FrameStrip, Strip>[] = [];
+        let dRowsCount = Math.ceil(length / this.cols);
+        let dX = 0;
+        let dRoom = dCols;
+        let dOffset = 0;
+        let row;
+        let i = 0;
+
+        while (dRowsCount) {
+            let startCol = (startFrame % this.cols);
+            //frames in source
+            let sCols = Math.min(this.cols - startCol, length);
+            let rowCols = Math.min(dRoom, length);
+
+            let sCount = Math.ceil(rowCols / sCols);
+
+            while (sCount) {
+                //frames in destination
+                const frames = Math.min(dRoom, sCols, endFrame - startFrame);
+                if (!dOffset) {
+                    row = new Map();
+                    rows.push(row);
+                }
+                const width = frames * frameWidth;
+                let sRow = (startFrame / this.cols) | 0;
+                let sY = (sRow * height) % (height * this.rows);
+                let sX = startCol * frameWidth;
+                let src = {x : sX, y : sY, width, height, frames, startFrame};
+
+                let dY = (rows.length - 1) * height;
+                let dest = {x : dX, y : dY, width, height, frames};
+                row.set(src, dest);
+
+                dOffset = (dOffset + frames) % dCols;
+                dRoom = dCols - sCols || dCols;
+                startFrame += frames;
+                startCol = (startFrame % this.cols);
+                sCols = Math.min(this.cols - startCol, length);
+                dX = (dX + frames * frameWidth) % dCols;
+                i++;
+                sCount--;
+            }
+            dRowsCount--;
         }
         return rows;
     }

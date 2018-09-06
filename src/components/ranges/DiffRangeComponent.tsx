@@ -5,7 +5,7 @@ import Row from "../layout/Row";
 import * as React from "react";
 import {Video} from "../../model/Video";
 import ThumbsStripComponent from "../video/ThumbsStripComponent";
-import ThumbsStrip, {Strip} from "../../model/ThumbsStrip";
+import ThumbsStrip, {FrameStrip, Strip} from "../../model/ThumbsStrip";
 import {RangeComponent} from "./RangeComponent";
 import Col from "../layout/Col";
 import "./range.css";
@@ -39,46 +39,38 @@ function matchTypeDescription (range: DiffRange): string {
         case MatchType.CHANGED:
             return `${r1.length} frames from File 1 starting from frame ${r1.frame} were ${matchType}/REPLACED with an additional ${r2.length} frames from File 2 starting from frame ${r2.frame}`;
         case MatchType.ADDED:
-            return `${r2.length} frames from File 2 starting from frame ${r2.frame} were ${matchType} to File 1 starting from frame ${r1.frame}`;
+            return `${r2.length} frames were ${matchType} to File 2 starting from frame ${r2.frame}`;
     }
     return `${r1.length} frames in File 1 were ${matchType} with ${r2.length} frames in File 2`;
 }
 
-function renderThumbs (range: DiffRange, sourceVideo: Video, comparedVideo: Video, thumbsStrip: ThumbsStrip, getSrc: (page: number, video: Video) => string) {
-    const {r1, r2, matchType} = range;
-
-    return (<div>
-        {/*<ThumbsStripComponent endFrame={r1.frame + r1.length - 1} startFrame={r1.frame}*/}
-        {/*getSrc={page => getSrc(page, sourceVideo)}*/}
-        {/*thumbsStrip={thumbsStrip}/>*/}
-    </div>)
-}
-
 const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getSrc, className, layout, onClick}: Props) => {
     const {r1, r2, matchType} = range;
+    const {frameWidth, frameHeight} = thumbsStrip;
+    let dCols = 10;
     let getThumbsStripComponent = function (range: Range, length: number, sourceVideo: Video) {
-        let srcStripPages: { [page: number]: Strip[] } = thumbsStrip.stripsForFrames(range.frame, range.frame + length - 1);
-
-
-        let srcStrips = flatten(Object.values(srcStripPages));
-
-        // Object.keys(srcStripPages).map((page, i) => {
-        let cols = 10;
-        let rowStrips = thumbsStrip.stripsMapToRows(srcStrips, cols);
-        //     return rowStrips;
-        // });
-        let width = thumbsStrip.frameWidth * length;
-        let height = thumbsStrip.frameHeight;
-        return rowStrips.map((strip, i) => {
+        let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(range.frame, length, dCols);
+        return rows.map((strip: Map<FrameStrip, Strip>, i) => {
             return <ThumbsStripComponent key={i} strip={strip}
-                                         width={width}
-                                         height={height}
-                                         getSrc={r => {
-                                             let page = thumbsStrip.pageForFrame(range.frame);
+                                         width={frameWidth * length}
+                                         height={frameHeight}
+                                         getSrc={frame => {
+                                             let page = thumbsStrip.pageForFrame(frame);
                                              return getSrc(page, sourceVideo);
                                          }}/>;
         })
     };
+
+    function renderThumbs () {
+        let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(r1.frame, length, dCols);
+        let width = frameWidth * dCols;
+        rows.map((row, i) => {
+            return (<div>
+
+            </div>);
+        });
+    }
+
     return (
         <div className={`DiffRangeComponent ${classNameFrom(className)}`}>
             <Row align={"center"}>
@@ -86,7 +78,7 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
                     {r1.length ? getThumbsStripComponent(r1, 1, sourceVideo)
                         : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
                     }
-                    {r2.length ? getThumbsStripComponent(r1, 1, comparedVideo)
+                    {r2.length ? getThumbsStripComponent(r2, 1, comparedVideo)
                         : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
                     }
                 </Col>
@@ -124,7 +116,7 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
             </Row>
             {layout == LayoutMode.DETAILED &&
             <Row>
-                {renderThumbs(range, sourceVideo, comparedVideo, thumbsStrip, getSrc)}
+                {renderThumbs()}
             </Row>
             }
         </div>

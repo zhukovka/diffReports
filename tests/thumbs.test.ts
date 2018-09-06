@@ -280,3 +280,56 @@ describe('Thumbs calculating function', () => {
         expect(page1).to.equal(1);
     });
 });
+
+describe('frames to canvas', function () {
+    const thumbstrip = new ThumbsStrip(10, rows, 1, 1);
+
+    it('should map frames to canvas', function () {
+        let startFrame = 34;
+        let length = 18;
+        let expected = [
+            //r0
+            [
+                //s1.1
+                [{x : 4, y : 3, width : 6, height : 1, frames : 6, startFrame : 34}, {x : 0, y : 0, width : 6, height : 1, frames : 6}],
+                //s2.1
+                [{x : 0, y : 4, width : 4, height : 1, frames : 4, startFrame : 40}, {x : 6, y : 0, width : 4, height : 1, frames : 4}],
+            ],
+            [
+                //s2.2
+                [{x : 4, y : 4, width : 6, height : 1, frames : 6, startFrame : 44}, {x : 0, y : 1, width : 6, height : 1, frames : 6}],
+                //s3.1
+                [{x : 0, y : 5, width : 2, height : 1, frames : 2, startFrame : 50}, {x : 6, y : 1, width : 2, height : 1, frames : 2}]
+            ]
+        ];
+        let rows = thumbstrip.framesToCanvas(startFrame, length, 10);
+        console.log(rows);
+        expect([...rows[0]]).to.deep.equal(expected[0]);
+        expect([...rows[1]]).to.deep.equal(expected[1]);
+    });
+    it('should map 1 frame in src to 1 frame in dest', function () {
+        let startFrame = 42;
+        let expected = [
+            [
+                [{x : 2, y : 4, width : 1, height : 1, frames : 1, startFrame : 42}, {x : 0, y : 0, width : 1, height : 1, frames : 1}],
+            ]
+        ];
+        let rows = thumbstrip.framesToCanvas(startFrame, 1, 10);
+        console.log(rows);
+        expect([...rows[0]]).to.deep.equal(expected[0]);
+    });
+
+    it('should map 2 src rows to 1 dest row', function () {
+        let startFrame = 1058;
+        let length = 4;
+        let expected = [
+            [
+                [{x : 8, y : 9, width : 2, height : 1, frames : 2, startFrame : 1058}, {x : 0, y : 0, width : 2, height : 1, frames : 2}],
+                [{x : 0, y : 10, width : 2, height : 1, frames : 2, startFrame : 1060}, {x : 2, y : 0, width : 2, height : 1, frames : 2}]
+            ]
+        ];
+        let rows = thumbstrip.framesToCanvas(startFrame, length, 10);
+        console.log(rows);
+        expect([...rows[0]]).to.deep.equal(expected[0]);
+    });
+});
