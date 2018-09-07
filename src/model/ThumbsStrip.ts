@@ -1,3 +1,5 @@
+import {Range} from "./Range";
+
 export interface Strip {
     x: number,
     y: number,

@@ -12,7 +12,7 @@ import "./range.css";
 import {classNameFrom} from "../../utils/CSSUtils";
 import Placeholder from "../layout/Placeholder";
 import {LayoutMode} from "../../common/LayoutMode";
-import {flatten} from "../../utils/ArrayUtils";
+import DiffRangeBoard from "./DiffRangeBoard";
 
 interface Props extends ReactElementProps {
     range: DiffRange;
@@ -61,7 +61,10 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
     };
 
     function renderRangeFrames () {
-        return getThumbsStripComponent(r1, r1.length, sourceVideo);
+        return <DiffRangeBoard getSrc={(frame, rangeNumber) => {
+            let page = thumbsStrip.pageForFrame(frame);
+            return getSrc(page, rangeNumber == 0 ? sourceVideo : comparedVideo);
+        }} r1={r1} r2={r2} thumbsStrip={thumbsStrip}/>
     }
 
     return (

@@ -337,8 +337,13 @@ describe('frames to canvas', function () {
         let startFrame = 1825;
         let length = 7;
         let rows = thumbstrip.framesToCanvas(startFrame, length, 10);
-        let rows1 = thumbs.framesToCanvas(startFrame, length, 10);
         console.log(rows);
-        console.log(rows1);
+        let expected = [
+            [
+                [{ x: 5, y: 14, width: 5, height: 1, frames: 5, startFrame: 1825 }, { x: 0, y: 0, width: 5, height: 1, frames: 5 }],
+                [{ x: 0, y: 15, width: 2, height: 1, frames: 2, startFrame: 1830 }, { x: 5, y: 0, width: 2, height: 1, frames: 2 }]
+            ]
+        ];
+        expect([...rows[0]]).to.deep.equal(expected[0]);
     });
 });
