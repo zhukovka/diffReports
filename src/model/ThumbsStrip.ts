@@ -155,8 +155,8 @@ class ThumbsStrip {
                 const width = frames * frameWidth;
 
                 // row of current source frame in the source image
-                let sourceRow = ((sourceFrame / this.cols) | 0) % pageHeight;
-                let sY = sourceRow * height;
+                let sourceRow = (sourceFrame / this.cols) | 0;
+                let sY = (sourceRow * height) % pageHeight;
                 let sX = sourceCol * frameWidth;
                 let src = {x : sX, y : sY, width, height, frames, startFrame : sourceFrame};
 
