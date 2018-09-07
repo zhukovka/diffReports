@@ -1,10 +1,13 @@
 import {Range} from "./Range";
 
-export interface Strip {
+export interface Coordinates {
     x: number,
     y: number,
     width: number,
-    height: number,
+    height: number
+}
+
+export interface Strip extends Coordinates {
     frames: number
 }
 
@@ -13,12 +16,23 @@ export interface FrameStrip extends Strip {
 }
 
 class ThumbsStrip {
+    private destFrameSize: { frameWidth: number, frameHeight: number };
+
     constructor (public cols: number, public rows: number, public frameWidth: number, public frameHeight: number) {
+        this.destFrameSize = {
+            frameHeight,
+            frameWidth
+        };
     }
 
     pageForFrame (frameNumber: number): number {
         return (frameNumber / this.cols / this.rows) | 0;
     }
+
+    setDestFrameSize (dest: { frameWidth: number, frameHeight: number }) {
+        this.destFrameSize = dest;
+    }
+
 
     framesToCanvas (startFrame: number, length: number, dCols: number): Map<FrameStrip, Strip>[] {
         let height = this.frameHeight;
@@ -54,8 +68,14 @@ class ThumbsStrip {
                 let sX = sourceCol * frameWidth;
                 let src = {x : sX, y : sY, width, height, frames, startFrame : sourceFrame};
 
-                let dY = (rows.length - 1) * height;
-                let dest = {x : dX, y : dY, width, height, frames};
+                let dY = (rows.length - 1) * this.destFrameSize.frameHeight;
+                let dest = {
+                    x : dX,
+                    y : dY,
+                    width : frames * this.destFrameSize.frameWidth,
+                    height : this.destFrameSize.frameHeight,
+                    frames
+                };
                 row.set(src, dest);
 
                 spaceInDestinationRow = spaceInDestinationRow - frames;
