@@ -50,25 +50,18 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
     let dCols = 10;
     let getThumbsStripComponent = function (range: Range, length: number, sourceVideo: Video) {
         let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(range.frame, length, dCols);
-        return rows.map((strip: Map<FrameStrip, Strip>, i) => {
-            return <ThumbsStripComponent key={i} strip={strip}
-                                         width={frameWidth * length}
-                                         height={frameHeight}
-                                         getSrc={frame => {
-                                             let page = thumbsStrip.pageForFrame(frame);
-                                             return getSrc(page, sourceVideo);
-                                         }}/>;
-        })
+        let width = frameWidth * Math.min(length, dCols);
+        return <ThumbsStripComponent strips={rows}
+                                     width={width}
+                                     height={frameHeight * rows.length}
+                                     getSrc={frame => {
+                                         let page = thumbsStrip.pageForFrame(frame);
+                                         return getSrc(page, sourceVideo);
+                                     }}/>;
     };
 
-    function renderThumbs () {
-        let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(r1.frame, length, dCols);
-        let width = frameWidth * dCols;
-        rows.map((row, i) => {
-            return (<div>
-
-            </div>);
-        });
+    function renderRangeFrames () {
+        return getThumbsStripComponent(r1, r1.length, sourceVideo);
     }
 
     return (
@@ -116,7 +109,7 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
             </Row>
             {layout == LayoutMode.DETAILED &&
             <Row>
-                {renderThumbs()}
+                {renderRangeFrames()}
             </Row>
             }
         </div>
