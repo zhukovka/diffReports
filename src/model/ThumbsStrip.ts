@@ -129,48 +129,48 @@ class ThumbsStrip {
     framesToCanvas (startFrame: number, length: number, dCols: number): Map<FrameStrip, Strip>[] {
         let height = this.frameHeight;
         let frameWidth = this.frameWidth;
+        let pageHeight = (height * this.rows);
+
+        let sourceFrame = startFrame;
         let endFrame = startFrame + length;
         let rows: Map<FrameStrip, Strip>[] = [];
-        let dRowsCount = Math.ceil(length / this.cols);
+        let dRowsCount = Math.ceil(length / dCols);
         let dX = 0;
-        let dRoom = dCols;
-        let dOffset = 0;
         let row;
-        let i = 0;
 
         while (dRowsCount) {
-            let startCol = (startFrame % this.cols);
-            //frames in source
-            let sCols = Math.min(this.cols - startCol, length);
-            let rowCols = Math.min(dRoom, length);
+            row = new Map();
+            rows.push(row);
 
-            let sCount = Math.ceil(rowCols / sCols);
+            let spaceInDestinationRow = dCols;
+            let sourceCol = (sourceFrame % this.cols);
 
-            while (sCount) {
-                //frames in destination
-                const frames = Math.min(dRoom, sCols, endFrame - startFrame);
-                if (!dOffset) {
-                    row = new Map();
-                    rows.push(row);
-                }
+            let framesInSourceRow = Math.min(this.cols - sourceCol, length);
+
+            let framesLeft = endFrame - sourceFrame;
+            while (spaceInDestinationRow && framesLeft) {
+
+                // frames to draw in destination
+                const frames = Math.min(spaceInDestinationRow, framesInSourceRow, framesLeft);
                 const width = frames * frameWidth;
-                let sRow = (startFrame / this.cols) | 0;
-                let sY = (sRow * height) % (height * this.rows);
-                let sX = startCol * frameWidth;
-                let src = {x : sX, y : sY, width, height, frames, startFrame};
+
+                // row of current source frame in the source image
+                let sourceRow = ((sourceFrame / this.cols) | 0) % pageHeight;
+                let sY = sourceRow * height;
+                let sX = sourceCol * frameWidth;
+                let src = {x : sX, y : sY, width, height, frames, startFrame : sourceFrame};
 
                 let dY = (rows.length - 1) * height;
                 let dest = {x : dX, y : dY, width, height, frames};
                 row.set(src, dest);
 
-                dOffset = (dOffset + frames) % dCols;
-                dRoom = dCols - sCols || dCols;
-                startFrame += frames;
-                startCol = (startFrame % this.cols);
-                sCols = Math.min(this.cols - startCol, length);
+                spaceInDestinationRow = spaceInDestinationRow - frames;
+                sourceFrame += frames;
+                sourceCol = (sourceFrame % this.cols);
+                framesInSourceRow = Math.min(this.cols - sourceCol, length);
+                framesLeft = endFrame - sourceFrame;
+
                 dX = (dX + frames * frameWidth) % (dCols * frameWidth);
-                i++;
-                sCount--;
             }
             dRowsCount--;
         }
