@@ -1,5 +1,4 @@
 import * as React from "react";
-import {MouseEvent} from "react";
 import {DiffRange, MatchType} from "./model/DiffRange";
 import DiffRangeComponent from "./components/ranges/DiffRangeComponent";
 import {Video} from "./model/Video";
@@ -10,7 +9,6 @@ import "./style.css";
 import List from "./components/layout/List";
 import VideoComponent from "./components/video/VideoComponent";
 import {LayoutMode} from "./common/LayoutMode";
-import ThumbsStripComponent from "./components/video/ThumbsStripComponent";
 
 interface Props {
     ranges: DiffRange[];
@@ -28,6 +26,7 @@ const FRAME_WIDTH = 120;
 const FRAME_HEIGHT = 68;
 
 class DiffReport extends React.Component<Props, State> {
+    static displayName = "DiffReport";
     private readonly thumbsStrip: ThumbsStrip;
 
     constructor (props: Props) {
@@ -56,8 +55,8 @@ class DiffReport extends React.Component<Props, State> {
             return counts;
         }, {});
         return (
-            <div className={"DiffReport"}>
-                <Row className={"DiffReport__header"} gap={"10px"}>
+            <div className={DiffReport.displayName}>
+                <Row className={`${DiffReport.displayName}__header`} gap={"10px"}>
                     <Col>
                         <h1>
                             COMPARE REPORT
@@ -107,14 +106,13 @@ class DiffReport extends React.Component<Props, State> {
                         </Row>
                     </Col>
                 </Row>
-                <div className={"DiffReport__ranges"}>
+                <div className={`${DiffReport.displayName}__ranges`}>
                     {this.renderRanges()}
                 </div>
             </div>)
     }
 
     getSrc = (page: number, video: Video) => {
-        // @ts-ignore
         let padStart = String(page + 1).padStart(3, '0');
         return `${video.id}/stripes/out${padStart}.jpg`;
     };
@@ -140,7 +138,6 @@ class DiffReport extends React.Component<Props, State> {
 
 
     private toggleType (type: string) {
-        // @ts-ignore
         const types = Object.assign({}, this.state.types);
         types[type] = !this.state.types[type];
         this.setState({types});

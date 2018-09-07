@@ -39,3 +39,13 @@
     border-bottom: 1px solid lightslategrey;
     padding: 5px;
 }
+
+.DiffRangeBoard {
+    --board-maxheight: 100vh;
+    max-height: var(--board-maxheight);
+    overflow: auto;
+}
+
+.DiffRangeBoard__canvas{
+    width: 100%;
+}

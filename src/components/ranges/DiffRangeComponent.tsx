@@ -118,5 +118,6 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
         </div>
     )
 };
-
+// @ts-ignore
+DiffRangeComponent.displayName = "DiffRangeComponent";
 export default DiffRangeComponent;
