@@ -166,7 +166,7 @@ class ThumbsStrip {
                 startFrame += frames;
                 startCol = (startFrame % this.cols);
                 sCols = Math.min(this.cols - startCol, length);
-                dX = (dX + frames * frameWidth) % dCols;
+                dX = (dX + frames * frameWidth) % (dCols * frameWidth);
                 i++;
                 sCount--;
             }

@@ -332,4 +332,13 @@ describe('frames to canvas', function () {
         console.log(rows);
         expect([...rows[0]]).to.deep.equal(expected[0]);
     });
+
+    it('should render frames from 1825 to 1831', function () {
+        let startFrame = 1825;
+        let length = 7;
+        let rows = thumbstrip.framesToCanvas(startFrame, length, 10);
+        let rows1 = thumbs.framesToCanvas(startFrame, length, 10);
+        console.log(rows);
+        console.log(rows1);
+    });
 });
