@@ -4,6 +4,7 @@ import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
 import ThumbsStrip, {Coordinates} from "../../model/ThumbsStrip";
 import {Video} from "../../model/Video";
 import {Range} from "../../model/Range";
+import {MouseEvent} from "react";
 
 const NAME = "DiffTimeline";
 const FRAME_WIDTH = 120;
@@ -21,6 +22,7 @@ interface Props {
 
 interface State {
     zoom: number;
+    pointerX: number;
 }
 
 class DiffTimeline extends React.Component<Props, State> {
@@ -44,7 +46,8 @@ class DiffTimeline extends React.Component<Props, State> {
             }, 0);
         }
         this.state = {
-            zoom : 1
+            zoom : 1,
+            pointerX : 0
         };
     }
 
@@ -57,25 +60,32 @@ class DiffTimeline extends React.Component<Props, State> {
         const containerWidth = canvas.parentElement.clientWidth;
         canvas.width = containerWidth;
         const ctx = canvas.getContext('2d');
-        let interval = Math.ceil(this.totalFrameCount * this.dFrameWidth / containerWidth);
+
         let framesDrawn = 0;
         let pxPerFrame = containerWidth / this.totalFrameCount;
         for (const range of ranges) {
             let {r1, r2, matchType} = range;
             ctx.fillStyle = MatchTypeColors[matchType];
             let dX = framesDrawn * pxPerFrame;
-            this.drawRangeTimeline(r1, sourceVideo.id, pxPerFrame, ctx, dX, 0, interval);
-            this.drawRangeTimeline(r2, comparedVideo.id, pxPerFrame, ctx, dX, this.dFrameHeight, interval);
+            this.drawRangeTimeline(r1, sourceVideo.id, pxPerFrame, ctx, dX, 0);
+            this.drawRangeTimeline(r2, comparedVideo.id, pxPerFrame, ctx, dX, this.dFrameHeight);
             framesDrawn += Math.max(r1.length, r2.length);
         }
 
     };
 
-    private drawRangeTimeline (r: Range, videoId: string, pxPerFrame: number, ctx: CanvasRenderingContext2D, dX: number, dY: number, interval: number) {
+    private drawRangeTimeline (r: Range, videoId: string, pxPerFrame: number, ctx: CanvasRenderingContext2D, dX: number, dY: number) {
         let {length, frame} = r;
+        if (!length) {
+            return;
+        }
         let pxForRange = length * pxPerFrame;
+
         let dstFrames = pxForRange / this.dFrameWidth;
         ctx.fillRect(dX, dY, pxForRange, this.dFrameHeight);
+
+        let interval = Math.max((length / dstFrames | 0), 1);
+
         while (length > 0) {
             let {x, y, height, width} = this.thumbsStrip.frameCoordinates(frame);
             let page = this.thumbsStrip.pageForFrame(frame);
@@ -102,22 +112,30 @@ class DiffTimeline extends React.Component<Props, State> {
         ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
     }
 
-    onZoom = (e: ChangeEvent) => {
-        let zoom = +(e.target as HTMLInputElement).value;
+    onZoom = (e: ChangeEvent<HTMLInputElement>) => {
+        let zoom = +e.target.value;
         this.setState({zoom}, () => {
             this.setupCanvas(this.canvas);
         });
     };
 
+    onRangeClick = (e: MouseEvent) => {
+        let {offsetX : pointerX} = e.nativeEvent;
+        this.setState({pointerX});
+    };
+
     render () {
-        const {zoom} = this.state;
+        const {zoom, pointerX} = this.state;
         const height = this.dFrameHeight * 2;
         const width = 1200;
         let style = {'--timeline-zoom' : zoom};
         // @ts-ignore
         return <div className={NAME} style={style}>
-            <div className={`${NAME}__ranges`}>
-                <canvas className={`${NAME}__canvas`} ref={this.setupCanvas} width={width} height={height}/>
+            <div className={"container"}>
+                <div className={`${NAME}__ranges`} onClick={this.onRangeClick}>
+                    <canvas className={`${NAME}__canvas`} ref={this.setupCanvas} width={width} height={height}/>
+                    <div className={`${NAME}__pointer`} style={{left : `${pointerX}px`}}/>
+                </div>
             </div>
             <div className={`${NAME}__zoom`}>
                 <input type="range" max={10} min={1} step={0.5} onChange={this.onZoom} value={zoom}/>

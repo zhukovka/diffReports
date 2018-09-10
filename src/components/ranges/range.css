@@ -56,4 +56,14 @@
 
 .DiffTimeline__ranges {
     width: calc(100% * var(--timeline-zoom));
+    position: relative;
+}
+
+.DiffTimeline__pointer {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: red;
 }
