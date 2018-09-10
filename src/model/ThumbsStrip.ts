@@ -33,11 +33,21 @@ class ThumbsStrip {
         this.destFrameSize = dest;
     }
 
+    frameCoordinates (frameNumber: number): Coordinates {
+        let height = this.frameHeight;
+        let width = this.frameWidth;
+        let pageHeight = (height * this.rows);
+        let frameCol = (frameNumber % this.cols);
+        // row of a frame in the source image
+        let frameRow = (frameNumber / this.cols) | 0;
+        let y = (frameRow * height) % pageHeight;
+        let x = frameCol * width;
+        return {x, y, height, width};
+    }
+
 
     framesToCanvas (startFrame: number, length: number, dCols: number): Map<FrameStrip, Strip>[] {
-        let height = this.frameHeight;
         let frameWidth = this.frameWidth;
-        let pageHeight = (height * this.rows);
 
         let sourceFrame = startFrame;
         let endFrame = startFrame + length;
@@ -60,13 +70,14 @@ class ThumbsStrip {
 
                 // frames to draw in destination
                 const frames = Math.min(spaceInDestinationRow, framesInSourceRow, framesLeft);
-                const width = frames * frameWidth;
 
-                // row of current source frame in the source image
-                let sourceRow = (sourceFrame / this.cols) | 0;
-                let sY = (sourceRow * height) % pageHeight;
-                let sX = sourceCol * frameWidth;
-                let src = {x : sX, y : sY, width, height, frames, startFrame : sourceFrame};
+                let sourceFrameCoordinates = this.frameCoordinates(sourceFrame);
+                let src = {
+                    ...sourceFrameCoordinates,
+                    width : frames * frameWidth,
+                    frames,
+                    startFrame : sourceFrame
+                };
 
                 let dY = (rows.length - 1) * this.destFrameSize.frameHeight;
                 let dest = {
