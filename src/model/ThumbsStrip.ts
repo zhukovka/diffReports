@@ -1,4 +1,5 @@
 import {Range} from "./Range";
+import {DiffRange} from "./DiffRange";
 
 export interface Coordinates {
     x: number,
@@ -43,6 +44,19 @@ class ThumbsStrip {
         let y = (frameRow * height) % pageHeight;
         let x = frameCol * width;
         return {x, y, height, width};
+    }
+
+    diffRangesToTimeline (ranges: DiffRange[]): Map<DiffRange, Range> {
+        let timelineRanges = new Map();
+        let frame = 0;
+        for (const diffRange of ranges) {
+            let {r1, r2} = diffRange;
+            let length = Math.max(r1.length, r2.length);
+            let range = {frame, length};
+            timelineRanges.set(diffRange, range);
+            frame += length;
+        }
+        return timelineRanges;
     }
 
 

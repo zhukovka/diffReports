@@ -178,48 +178,17 @@ describe('frames to canvas', function () {
 });
 
 describe('timeline test', function () {
-    it('should draw timeline', function () {
-        const y1 = 0;
-        const y2 = thumbs.frameHeight;
-        let lastX = 0;
-        let row1 = [];
-        let row2 = [];
-        for (const range of ranges) {
-            let {r1, r2} = range;
-            let x1 = lastX;
-            let x2 = lastX;
-            let rect1 = {x : x1, y : y1, width : r1.length, height : height};
-            let rect2 = {x : x2, y : y2, width : r2.length, height : height};
-            lastX += Math.max(r1.length, r2.length);
-            row1.push(rect1);
-            row2.push(rect2);
-            console.log(rect1);
-            console.log(rect2);
-            console.log("-----------------");
-        }
+    it('should return map diffrange - range', function () {
+        let timelineMap = thumbs.diffRangesToTimeline(ranges as any);
 
-        let expected1 = [
-            {x : 0, y : 0, width : 0, height : 68},
-            {x : 4, y : 0, width : 1811, height : 68},
-            {x : 1815, y : 0, width : 0, height : 68},
-            {x : 1846, y : 0, width : 14, height : 68},
-            {x : 1860, y : 0, width : 7, height : 68}];
+        let expected = [
+            {frame : 0, length : 4},
+            {frame : 4, length : 1811},
+            {frame : 1815, length : 31},
+            {frame : 1846, length : 14},
+            {frame : 1860, length : 7}
+        ];
 
-        expect(row1).to.deep.equal(expected1);
-
-        let expected2 = [
-            {x : 0, y : 68, width : 4, height : 68},
-            {x : 4, y : 68, width : 1811, height : 68},
-            {x : 1815, y : 68, width : 31, height : 68},
-            {x : 1846, y : 68, width : 0, height : 68},
-            {x : 1860, y : 68, width : 7, height : 68}];
-
-        expect(row2).to.deep.equal(expected2);
-    });
-
-    it('should draw one dest row for 1811 frames', function () {
-        let strip = thumbs.framesToCanvas(4, 1811, 1811);
-        expect(strip.length).to.equal(1);
-        console.log(strip);
+        expect([...timelineMap.values()]).to.deep.equal(expected);
     });
 });

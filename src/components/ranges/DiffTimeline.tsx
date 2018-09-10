@@ -31,6 +31,7 @@ class DiffTimeline extends React.Component<Props, State> {
     private dFrameHeight: number;
     private totalFrameCount: number;
     private canvas: HTMLCanvasElement;
+    private timelineMap: Map<DiffRange, Range>;
 
     constructor (props: Props) {
         super(props);
@@ -44,11 +45,19 @@ class DiffTimeline extends React.Component<Props, State> {
                 let {r1, r2} = range;
                 return acc + Math.max(r1.length, r2.length);
             }, 0);
+            this.timelineMap = this.thumbsStrip.diffRangesToTimeline(ranges);
         }
         this.state = {
             zoom : 1,
             pointerX : 0
         };
+    }
+
+    get pxPerFrame () {
+        if (!this.canvas || !this.totalFrameCount) {
+            return 0;
+        }
+        return this.canvas.width / this.totalFrameCount;
     }
 
     setupCanvas = (canvas: HTMLCanvasElement) => {
@@ -59,36 +68,37 @@ class DiffTimeline extends React.Component<Props, State> {
         this.canvas = canvas;
         const containerWidth = canvas.parentElement.clientWidth;
         canvas.width = containerWidth;
-        const ctx = canvas.getContext('2d');
 
-        let framesDrawn = 0;
-        let pxPerFrame = containerWidth / this.totalFrameCount;
-        for (const range of ranges) {
-            let {r1, r2, matchType} = range;
+        const ctx = this.canvas.getContext('2d');
+        let pxPerFrame = this.pxPerFrame;
+        for (const [diffRange, range] of this.timelineMap) {
+            let {r1, r2, matchType} = diffRange;
+
             ctx.fillStyle = MatchTypeColors[matchType];
-            let dX = framesDrawn * pxPerFrame;
-            this.drawRangeTimeline(r1, sourceVideo.id, pxPerFrame, ctx, dX, 0);
-            this.drawRangeTimeline(r2, comparedVideo.id, pxPerFrame, ctx, dX, this.dFrameHeight);
-            framesDrawn += Math.max(r1.length, r2.length);
-        }
 
+            this.drawRange(r1, range, sourceVideo.id, pxPerFrame, ctx, 0);
+            this.drawRange(r2, range, comparedVideo.id, pxPerFrame, ctx, this.dFrameHeight);
+
+        }
     };
 
-    private drawRangeTimeline (r: Range, videoId: string, pxPerFrame: number, ctx: CanvasRenderingContext2D, dX: number, dY: number) {
-        let {length, frame} = r;
-        if (!length) {
+    private drawRange (srcRange: Range, dstRange: Range, videoId: string, pxPerFrame: number, ctx: CanvasRenderingContext2D, dY: number) {
+        let {frame : srcFrame, length : srcLength} = srcRange;
+        let {frame : dstFrame, length : dstLength} = dstRange;
+
+        let dX = dstFrame * pxPerFrame;
+        let dstWidth = dstLength * pxPerFrame;
+        let dstFrames = dstWidth / this.dFrameWidth;
+
+        ctx.fillRect(dX, dY, dstWidth, this.dFrameHeight);
+        if (!srcLength) {
             return;
         }
-        let pxForRange = length * pxPerFrame;
+        let interval = Math.max((srcLength / dstFrames | 0), 1);
 
-        let dstFrames = pxForRange / this.dFrameWidth;
-        ctx.fillRect(dX, dY, pxForRange, this.dFrameHeight);
-
-        let interval = Math.max((length / dstFrames | 0), 1);
-
-        while (length > 0) {
-            let {x, y, height, width} = this.thumbsStrip.frameCoordinates(frame);
-            let page = this.thumbsStrip.pageForFrame(frame);
+        while (srcLength > 0) {
+            let {x, y, height, width} = this.thumbsStrip.frameCoordinates(srcFrame);
+            let page = this.thumbsStrip.pageForFrame(srcFrame);
 
             let dstW = Math.min(this.dFrameWidth, dstFrames * this.dFrameWidth);
             let src = {
@@ -99,11 +109,12 @@ class DiffTimeline extends React.Component<Props, State> {
             };
             this.props.getImage(videoId, page).then(img => this.drawFrame(ctx, src, dest, img));
 
-            frame += interval;
-            length -= interval;
+            srcFrame += interval;
+            srcLength -= interval;
             dX += dstW;
-            dstFrames--;
+            dstLength--;
         }
+
     }
 
     drawFrame (ctx: CanvasRenderingContext2D, src: Coordinates, dest: Coordinates, img: HTMLImageElement) {
