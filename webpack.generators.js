@@ -3,7 +3,8 @@ const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
     entry: {
-        generateProjectsHTML: './generators/generateProjectsHTML.tsx'
+        generateProjectsHTML: './generators/generateProjectsHTML.tsx',
+        generateTestHTML: './generators/generateTestHTML.tsx',
     },
 
     target: 'node',

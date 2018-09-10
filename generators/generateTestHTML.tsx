@@ -3,6 +3,8 @@ import * as React from "react";
 import {renderToString} from "react-dom/server";
 import * as fs from "fs";
 import DiffReport from "../src/DiffReport";
+import {TestPage} from "../src/test";
+import DiffReportsApi from "../src/model/DiffReportsApi";
 
 require('dotenv').config();
 
@@ -30,15 +32,15 @@ export function htmlTemplate (title: string, reactDom: string, script: string) {
 
         <body>
             <div id="app">${ reactDom }</div>
-            <script src="${staticDir}/project.bundle.js"></script>
+            <script src="${staticDir}/test.bundle.js"></script>
             ${script}
         </body>
         </html>
     `;
 }
 
-function writeRangesHTML (sourceId: string, html: string): string {
-    let path = `./reports/${sourceId}/index.html`;
+function writeHTML (html: string): string {
+    let path = `./tests/index.html`;
     fs.writeFileSync(path, html, 'utf8');
     return path;
 }
@@ -50,26 +52,21 @@ function generateHTML (projectId: string, comparedMov: string) {
     const sourceVideo = readVideoJson(sourceMov);
     const comparedVideo = readVideoJson(comparedMov);
     let ranges = readRangesJson(projectId, comparedMov);
-    const app = renderToString(<DiffReport ranges={ranges}
-                                           sourceVideo={sourceVideo}
-                                           comparedVideo={comparedVideo}/>);
+    let api = new DiffReportsApi(projectId);
+    const app = renderToString(<TestPage comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}
+                                         api={api}/>);
 
     const script = `<script>
-            diffReport(${JSON.stringify(ranges)}, ${JSON.stringify(sourceVideo)}, ${JSON.stringify(comparedVideo)});
+            diffReport(${JSON.stringify(ranges)}, ${JSON.stringify(sourceVideo)}, ${JSON.stringify(comparedVideo)}, "${projectId}");
     </script>`;
 
     const html = htmlTemplate(projectId, app, script);
-    return writeRangesHTML(projectId, html);
+    return writeHTML(html);
 }
 
 let {projectId, comparedMov} = program;
 
-
-if (process.env.NODE_ENV == 'production') {
-    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `./reports/${projectId}/project.bundle.js`);
-    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `./reports/${projectId}/project.css`);
 //    mkdir -p reports/salt_color_trim3k/salt_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/square/ "$_"
-}
 console.log(generateHTML(projectId, comparedMov));
 
 
