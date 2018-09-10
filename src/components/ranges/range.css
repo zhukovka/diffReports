@@ -46,6 +46,14 @@
     overflow: auto;
 }
 
-.DiffRangeBoard__canvas{
+.DiffRangeBoard__canvas {
     width: 100%;
+}
+
+.DiffTimeline {
+    --timeline-zoom: 1;
+}
+
+.DiffTimeline__ranges {
+    width: calc(100% * var(--timeline-zoom));
 }

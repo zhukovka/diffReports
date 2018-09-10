@@ -1,52 +1,65 @@
 import * as React from "react";
-import {DiffRange, MatchType, MatchTypeColors} from "../../model/DiffRange";
-import ThumbsStrip, {FrameStrip, Coordinates} from "../../model/ThumbsStrip";
+import {ChangeEvent} from "react";
+import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
+import ThumbsStrip, {Coordinates} from "../../model/ThumbsStrip";
 import {Video} from "../../model/Video";
 import {Range} from "../../model/Range";
-
-interface Props {
-    ranges: DiffRange[];
-    sourceVideo: Video;
-    comparedVideo: Video;
-}
 
 const NAME = "DiffTimeline";
 const FRAME_WIDTH = 120;
 const FRAME_HEIGHT = 68;
 const COLS = 10;
 
-class DiffTimeline extends React.Component<Props, any> {
-    private imageMap: Map<string, HTMLImageElement> = new Map();
+interface Props {
+    ranges: DiffRange[];
+    sourceVideo: Video;
+    comparedVideo: Video;
+
+    getImage (videoId: string, page: number): Promise<HTMLImageElement>
+}
+
+
+interface State {
+    zoom: number;
+}
+
+class DiffTimeline extends React.Component<Props, State> {
     private readonly thumbsStrip: ThumbsStrip;
     private dFrameWidth: number;
     private dFrameHeight: number;
+    private totalFrameCount: number;
+    private canvas: HTMLCanvasElement;
 
     constructor (props: Props) {
         super(props);
-        if (props.sourceVideo) {
+        const {ranges, sourceVideo, comparedVideo} = props;
+        if (sourceVideo) {
             this.dFrameWidth = FRAME_WIDTH / 2;
             this.dFrameHeight = FRAME_HEIGHT / 2;
             this.thumbsStrip = new ThumbsStrip(COLS, props.sourceVideo.timecodeRate, FRAME_WIDTH, FRAME_HEIGHT);
             this.thumbsStrip.setDestFrameSize({frameWidth : this.dFrameWidth, frameHeight : this.dFrameHeight});
+            this.totalFrameCount = ranges.reduce((acc, range) => {
+                let {r1, r2} = range;
+                return acc + Math.max(r1.length, r2.length);
+            }, 0);
         }
-        this.state = {};
+        this.state = {
+            zoom : 1
+        };
     }
 
     setupCanvas = (canvas: HTMLCanvasElement) => {
-        const {ranges, sourceVideo, comparedVideo} = this.props;
         if (!canvas) {
             return;
         }
-        const totalFrames = ranges.reduce((acc, range) => {
-            let {r1, r2} = range;
-            return acc + Math.max(r1.length, r2.length);
-        }, 0);
+        const {ranges, sourceVideo, comparedVideo} = this.props;
+        this.canvas = canvas;
         const containerWidth = canvas.parentElement.clientWidth;
         canvas.width = containerWidth;
         const ctx = canvas.getContext('2d');
-        let interval = Math.ceil(totalFrames * this.dFrameWidth / containerWidth);
+        let interval = Math.ceil(this.totalFrameCount * this.dFrameWidth / containerWidth);
         let framesDrawn = 0;
-        let pxPerFrame = containerWidth / totalFrames;
+        let pxPerFrame = containerWidth / this.totalFrameCount;
         for (const range of ranges) {
             let {r1, r2, matchType} = range;
             ctx.fillStyle = MatchTypeColors[matchType];
@@ -67,7 +80,6 @@ class DiffTimeline extends React.Component<Props, any> {
             let {x, y, height, width} = this.thumbsStrip.frameCoordinates(frame);
             let page = this.thumbsStrip.pageForFrame(frame);
 
-            let imgSrc = this.getSrc(page, videoId);
             let dstW = Math.min(this.dFrameWidth, dstFrames * this.dFrameWidth);
             let src = {
                 x, y, height, width : Math.min(width, dstFrames * width)
@@ -75,7 +87,8 @@ class DiffTimeline extends React.Component<Props, any> {
             let dest = {
                 x : dX, y : dY, height : this.dFrameHeight, width : dstW
             };
-            this.drawFrame(ctx, src, dest, imgSrc);
+            this.props.getImage(videoId, page).then(img => this.drawFrame(ctx, src, dest, img));
+
             frame += interval;
             length -= interval;
             dX += dstW;
@@ -83,37 +96,31 @@ class DiffTimeline extends React.Component<Props, any> {
         }
     }
 
-    drawFrame (ctx: CanvasRenderingContext2D, src: Coordinates, dest: Coordinates, imgSrc: string) {
+    drawFrame (ctx: CanvasRenderingContext2D, src: Coordinates, dest: Coordinates, img: HTMLImageElement) {
         let {x : sX, y : sY, width : sWidth, height : sHeight} = src;
         let {x : dX, y : dY, width : dWidth, height : dHeight} = dest;
-        let img: HTMLImageElement;
-        if (this.imageMap.has(imgSrc)) {
-            img = this.imageMap.get(imgSrc);
-            ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
-        } else {
-            img = new Image();
-            img.src = imgSrc;
-            img.onload = () => {
-                ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
-                this.imageMap.set(img.src, img);
-            };
-        }
-
+        ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
     }
 
-
-    getSrc = (page: number, videoId: string) => {
-        let padStart = String(page + 1).padStart(3, '0');
-        return `${videoId}/stripes/out${padStart}.jpg`;
+    onZoom = (e: ChangeEvent) => {
+        let zoom = +(e.target as HTMLInputElement).value;
+        this.setState({zoom}, () => {
+            this.setupCanvas(this.canvas);
+        });
     };
 
     render () {
-        const {ranges} = this.props;
-        const height = this.thumbsStrip.frameHeight * 2;
+        const {zoom} = this.state;
+        const height = this.dFrameHeight * 2;
         const width = 1200;
-        return <div className={NAME}>
-            <div>
+        let style = {'--timeline-zoom' : zoom};
+        // @ts-ignore
+        return <div className={NAME} style={style}>
+            <div className={`${NAME}__ranges`}>
                 <canvas className={`${NAME}__canvas`} ref={this.setupCanvas} width={width} height={height}/>
+            </div>
+            <div className={`${NAME}__zoom`}>
+                <input type="range" max={10} min={1} step={0.5} onChange={this.onZoom} value={zoom}/>
             </div>
         </div>
     }
