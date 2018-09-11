@@ -24,6 +24,7 @@ interface Props {
 interface State {
     zoom: number;
     pointerX: number;
+    maxZoom: number;
 }
 
 class DiffTimeline extends React.Component<Props, State> {
@@ -53,7 +54,8 @@ class DiffTimeline extends React.Component<Props, State> {
         }
         this.state = {
             zoom : 1,
-            pointerX : 0
+            pointerX : 0,
+            maxZoom : 0
         };
     }
 
@@ -71,14 +73,24 @@ class DiffTimeline extends React.Component<Props, State> {
         return this.canvas.width;
     }
 
+    setupContainer = (container: HTMLDivElement) => {
+        this.container = container;
+        if (!container || !this.totalFrameCount || !container.clientWidth) {
+            return;
+        }
+
+        const maxZoom = Math.min(this.totalFrameCount * this.dFrameWidth, 32767) / container.clientWidth | 0;
+        this.setState({maxZoom});
+    };
+
     setupCanvas = (canvas: HTMLCanvasElement) => {
+        this.canvas = canvas;
         if (!canvas) {
             return;
         }
         const {ranges, sourceVideo, comparedVideo} = this.props;
         this.drawCount++;
 
-        this.canvas = canvas;
         canvas.width = canvas.parentElement.clientWidth;
         const ctx = this.canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -105,7 +117,7 @@ class DiffTimeline extends React.Component<Props, State> {
         if (!srcLength) {
             return;
         }
-        let interval = Math.max(Math.round(dstLength / dstFrames), 1);
+        let interval = Math.max((dstLength / dstFrames) | 0, 1);
 
         while (dstFrames > 0) {
             let {x, y, height, width} = this.thumbsStrip.frameCoordinates(srcFrame);
@@ -167,21 +179,24 @@ class DiffTimeline extends React.Component<Props, State> {
     }
 
     render () {
-        const {zoom, pointerX} = this.state;
+        const {zoom, pointerX, maxZoom} = this.state;
         const height = this.dFrameHeight * 2;
         let style = {'--timeline-zoom' : zoom};
         // @ts-ignore
         return <div className={NAME} style={style}>
-            <div className={"container"} ref={el => this.container = el}>
+            <div className={"container"} ref={this.setupContainer}>
                 <div className={`${NAME}__ranges`} onClick={this.onRangeClick}>
                     <canvas className={`${NAME}__canvas`} ref={this.setupCanvas} width={this.canvasWidth}
                             height={height}/>
                     <div className={`${NAME}__pointer`} style={{left : `${pointerX}px`}}/>
                 </div>
             </div>
-            <div className={`${NAME}__zoom`}>
-                <input type="range" max={10} min={1} step={0.5} onChange={this.onZoom} value={zoom}/>
-            </div>
+            {(maxZoom >= zoom) ?
+                <div className={`${NAME}__zoom`}>
+                    <input type="range" max={maxZoom} min={1} step={0.5} onChange={this.onZoom} value={zoom}/>
+                </div>
+                : null
+            }
         </div>
     }
 }
