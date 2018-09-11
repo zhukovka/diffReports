@@ -1,4 +1,4 @@
-import {Range} from "./Range";
+import {IRange} from "./Range";
 
 export enum MatchType {
     ADDED = "ADDED",
@@ -20,8 +20,8 @@ export enum MatchTypeColors {
 }
 
 export interface DiffRange {
-    r1: Range;
-    r2: Range;
-    movedTo: Range;
+    r1: IRange;
+    r2: IRange;
+    movedTo: IRange;
     matchType: MatchType;
 }

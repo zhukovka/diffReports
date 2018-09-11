@@ -1,10 +1,10 @@
-import {Range} from "../../model/Range";
+import {IRange} from "../../model/Range";
 import * as React from "react";
 import ThumbsStrip, {FrameStrip, Strip} from "../../model/ThumbsStrip";
 
 interface Props {
-    r1: Range;
-    r2: Range;
+    r1: IRange;
+    r2: IRange;
     getSrc: (frame: number, rangeNumber: number) => string;
     thumbsStrip: ThumbsStrip;
     cols?: number;

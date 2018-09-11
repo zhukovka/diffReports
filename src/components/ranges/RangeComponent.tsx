@@ -1,9 +1,9 @@
-import {Range} from "../../model/Range";
+import {IRange} from "../../model/Range";
 import * as React from "react";
 import "./range.css";
 
 interface Props {
-    range: Range
+    range: IRange
 }
 
 export const RangeComponent = ({range}: Props) => {

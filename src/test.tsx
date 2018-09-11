@@ -14,7 +14,7 @@ interface Props {
 
 export const TestPage = ({ranges, sourceVideo, comparedVideo, api}: Props) => {
     return <DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}
-                         getImage={api.getImage.bind(api)}/>
+                         getImage={api.getImage.bind(api)} rangeSelected={(r) => console.log(r)}/>
 };
 
 function diffReport (ranges: DiffRange[], sourceVideo: Video, comparedVideo: Video, projectId: string) {

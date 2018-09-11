@@ -1,6 +1,8 @@
 import 'mocha';
 import {expect} from 'chai';
 import ThumbsStrip from "../src/model/ThumbsStrip";
+import {DiffRange} from "../src/model/DiffRange";
+import {containsFrame, IRange} from "../src/model/Range";
 
 const cols = 10;
 const rows = 24;
@@ -178,8 +180,8 @@ describe('frames to canvas', function () {
 });
 
 describe('timeline test', function () {
+    let timelineMap: Map<DiffRange, IRange> = thumbs.diffRangesToTimeline(ranges as any);
     it('should return map diffrange - range', function () {
-        let timelineMap = thumbs.diffRangesToTimeline(ranges as any);
 
         let expected = [
             {frame : 0, length : 4},
@@ -190,5 +192,32 @@ describe('timeline test', function () {
         ];
 
         expect([...timelineMap.values()]).to.deep.equal(expected);
+    });
+
+    it('should search frame #42 in timelineMap', function () {
+        //an array of [key, value]
+        let entry = thumbs.entryByFrame(timelineMap, 42);
+        let expected = [
+            {
+                "r1" : {"frame" : 0, "length" : 1811},
+                "r2" : {"frame" : 4, "length" : 1811}, "matchType" : "MATCH"
+            },
+            {frame : 4, length : 1811}];
+
+        expect(entry).to.deep.equal(expected);
+    });
+
+    it('should return the last [DiffRange, IRange] pair for a frame greater than the last frame in timelineMap', function () {
+        //an array of [key, value]
+        let entry = thumbs.entryByFrame(timelineMap, 100500);
+        let expected = [
+            {
+                "r1" : {"frame" : 1825, "length" : 7},
+                "r2" : {"frame" : 1846, "length" : 7},
+                "matchType" : "MATCH"
+            },
+            {frame : 1860, length : 7}];
+
+        expect(entry).to.deep.equal(expected);
     });
 });

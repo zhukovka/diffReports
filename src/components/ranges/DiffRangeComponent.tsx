@@ -1,6 +1,6 @@
 import {ReactElementProps} from "../../common/react-interfaces";
 import {DiffRange, MatchType} from "../../model/DiffRange";
-import {Range} from "../../model/Range";
+import {IRange} from "../../model/Range";
 import Row from "../layout/Row";
 import * as React from "react";
 import {Video} from "../../model/Video";
@@ -48,7 +48,7 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
     const {r1, r2, matchType} = range;
     const {frameWidth, frameHeight} = thumbsStrip;
     let dCols = 10;
-    let getThumbsStripComponent = function (range: Range, length: number, sourceVideo: Video) {
+    let getThumbsStripComponent = function (range: IRange, length: number, sourceVideo: Video) {
         let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(range.frame, length, dCols);
         let width = frameWidth * Math.min(length, dCols);
         return <ThumbsStripComponent strips={rows}

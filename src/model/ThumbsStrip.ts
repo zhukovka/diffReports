@@ -1,4 +1,4 @@
-import {Range} from "./Range";
+import {containsFrame, IRange} from "./Range";
 import {DiffRange} from "./DiffRange";
 
 export interface Coordinates {
@@ -14,6 +14,30 @@ export interface Strip extends Coordinates {
 
 export interface FrameStrip extends Strip {
     startFrame: number;
+}
+
+function findRange (frameNumber: number, entries: [DiffRange, IRange][]): [DiffRange, IRange] {
+    if (!entries.length) {
+        return null;
+    }
+    if (entries.length == 1) {
+        return entries[0];
+    }
+    let mid = entries.length / 2 | 0;
+    let range = entries[mid][1];
+
+    if (containsFrame(range, frameNumber)) {
+        return entries[mid];
+    }
+
+    if (range.frame > frameNumber) {
+        let left = entries.slice(0, mid);
+        return findRange(frameNumber, left);
+    } else {
+        let right = entries.slice(mid);
+        return findRange(frameNumber, right);
+    }
+    return null;
 }
 
 class ThumbsStrip {
@@ -46,7 +70,7 @@ class ThumbsStrip {
         return {x, y, height, width};
     }
 
-    diffRangesToTimeline (ranges: DiffRange[]): Map<DiffRange, Range> {
+    diffRangesToTimeline (ranges: DiffRange[]): Map<DiffRange, IRange> {
         let timelineRanges = new Map();
         let frame = 0;
         for (const diffRange of ranges) {
@@ -59,6 +83,14 @@ class ThumbsStrip {
         return timelineRanges;
     }
 
+    /**
+     * Find Timeline entry by frame number
+     * @param timeline
+     * @param timelineFrame
+     */
+    entryByFrame (timeline: Map<DiffRange, IRange>, timelineFrame: number): [DiffRange, IRange] {
+        return findRange(timelineFrame, [...timeline.entries()]);
+    }
 
     framesToCanvas (startFrame: number, length: number, dCols: number): Map<FrameStrip, Strip>[] {
         let frameWidth = this.frameWidth;
