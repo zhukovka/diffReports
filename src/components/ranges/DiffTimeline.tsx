@@ -66,13 +66,6 @@ class DiffTimeline extends React.Component<Props, State> {
         return this.canvas.width / this.totalFrameCount;
     }
 
-    get canvasWidth () {
-        if (!this.canvas) {
-            return 0;
-        }
-        return this.canvas.width;
-    }
-
     setupContainer = (container: HTMLDivElement) => {
         this.container = container;
         if (!container || !this.totalFrameCount || !container.clientWidth) {
@@ -105,49 +98,70 @@ class DiffTimeline extends React.Component<Props, State> {
         }
     };
 
-    private drawRange (srcRange: IRange, dstRange: IRange, videoId: string, pxPerFrame: number, ctx: CanvasRenderingContext2D, dY: number) {
+    private drawRange (srcRange: IRange, dstRange: IRange, videoId: string, canvasFrameWidth: number, ctx: CanvasRenderingContext2D, canvasY: number) {
+
         let {frame : srcFrame, length : srcLength} = srcRange;
         let {frame : dstFrame, length : dstLength} = dstRange;
 
-        let dX = dstFrame * pxPerFrame;
-        let dstWidth = dstLength * pxPerFrame;
-        let dstFrames = dstWidth / this.dFrameWidth;
-        let drawCount = this.drawCount;
-        ctx.fillRect(dX, dY, dstWidth, this.dFrameHeight);
+        let canvasX = dstFrame * canvasFrameWidth;
+
+        let scaledFrameWidth = this.dFrameWidth;
+
+        // px for the whole range
+        let canvasWidth = dstLength * canvasFrameWidth;
+
+        ctx.fillRect(canvasX, canvasY, canvasWidth, this.dFrameHeight);
         if (!srcLength) {
             return;
         }
-        let interval = Math.max((dstLength / dstFrames) | 0, 1);
 
-        while (dstFrames > 0) {
-            let {x, y, height, width} = this.thumbsStrip.frameCoordinates(srcFrame);
-            let page = this.thumbsStrip.pageForFrame(srcFrame);
+        let scaledFrames = canvasWidth / scaledFrameWidth;
 
-            let dstW = Math.min(this.dFrameWidth, dstFrames * this.dFrameWidth);
-            let sWidth = Math.min(width, dstFrames * width);
-            let src = {
-                x, y, height, width : sWidth
+        let scaledFullFrames = (scaledFrames | 0); // drop possible frame portion from the end
+        let scaledFrameRemainder = (scaledFrames % 1); // keep track of possible frame portion from the end
+
+        // source range frame numbers scaled to canvas,
+        // i.e. spread 42 frames from the source images to 10 frames space on the canvas
+        this.thumbsStrip.scaledToCanvas(srcLength, scaledFullFrames).forEach((n, i) => {
+            let srcFrameNumber = srcFrame + n;
+            let src = this.thumbsStrip.frameCoordinates(srcFrameNumber);
+
+            let dx = canvasX + i * scaledFrameWidth;
+            let dest = {x : dx, y : canvasY, height : this.dFrameHeight, width : scaledFrameWidth};
+
+            this.drawFrame(srcFrameNumber, videoId, src, dest);
+        });
+
+        if (scaledFrameRemainder > 0) {
+            // coordinates of possible portion + 1 frame from the end
+            let lastFrameNumber = srcFrame + srcLength - 1;
+            let lastSrcCoords = this.thumbsStrip.frameCoordinates(lastFrameNumber);
+            lastSrcCoords.width = lastSrcCoords.width * scaledFrameRemainder;
+
+            canvasX += scaledFullFrames * scaledFrameWidth;
+            let lastDestCoords = {
+                x : canvasX,
+                y : canvasY,
+                height : this.dFrameHeight,
+                width : scaledFrameWidth * scaledFrameRemainder
             };
-            let dest = {
-                x : dX, y : dY, height : this.dFrameHeight, width : dstW
-            };
-            this.props.getImage(videoId, page).then(img => {
-                if (drawCount == this.drawCount) {
-                    this.drawFrame(ctx, src, dest, img);
-                }
-            });
-
-            srcFrame += interval;
-            dX += dstW;
-            dstFrames--;
+            this.drawFrame(lastFrameNumber, videoId, lastSrcCoords, lastDestCoords);
         }
-
     }
 
-    drawFrame (ctx: CanvasRenderingContext2D, src: Coordinates, dest: Coordinates, img: HTMLImageElement) {
+    drawFrame (frameNumber: number, videoId: string, src: Coordinates, dest: Coordinates) {
+        let drawCount = this.drawCount;
         let {x : sX, y : sY, width : sWidth, height : sHeight} = src;
         let {x : dX, y : dY, width : dWidth, height : dHeight} = dest;
-        ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
+        let page = this.thumbsStrip.pageForFrame(frameNumber);
+
+        this.props.getImage(videoId, page).then(img => {
+            //do not draw if the canvas should draw new state
+            if (this.canvas && drawCount == this.drawCount) {
+                const ctx = this.canvas.getContext('2d');
+                ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
+            }
+        });
     }
 
     onZoom = (e: ChangeEvent<HTMLInputElement>) => {
@@ -186,7 +200,7 @@ class DiffTimeline extends React.Component<Props, State> {
         return <div className={NAME} style={style}>
             <div className={"container"} ref={this.setupContainer}>
                 <div className={`${NAME}__ranges`} onClick={this.onRangeClick}>
-                    <canvas className={`${NAME}__canvas`} ref={this.setupCanvas} width={this.canvasWidth}
+                    <canvas className={`${NAME}__canvas`} ref={this.setupCanvas} width={1200}
                             height={height}/>
                     <div className={`${NAME}__pointer`} style={{left : `${pointerX}px`}}/>
                 </div>

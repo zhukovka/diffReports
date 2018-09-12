@@ -92,6 +92,20 @@ class ThumbsStrip {
         return findRange(timelineFrame, [...timeline.entries()]);
     }
 
+    /**
+     * source range frame numbers scaled to a canvas,
+     * i.e. spread 42 frames from the source images to 10 frames space on the canvas
+     * @param srcLength
+     * @param dstLength
+     */
+    scaledToCanvas (srcLength: number, dstLength: number) {
+        let step = srcLength / dstLength | 0;
+        let frames = new Array(dstLength);
+        return frames.fill(0).map((_, i) => {
+            return i * step;
+        });
+    }
+
     framesToCanvas (startFrame: number, length: number, dCols: number): Map<FrameStrip, Strip>[] {
         let frameWidth = this.frameWidth;
 

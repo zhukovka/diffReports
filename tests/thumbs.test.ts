@@ -221,3 +221,73 @@ describe('timeline test', function () {
         expect(entry).to.deep.equal(expected);
     });
 });
+
+describe('timeline scaling', function () {
+    it('should scale 42 frames to 10', function () {
+        let scaled = thumbs.scaledToCanvas(42, 10);
+        let expected = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36];
+        console.log(scaled);
+        expect(scaled).to.deep.equal(expected);
+    });
+
+
+    it('should draw scaled 42 frames to 10 in range', function () {
+        // given
+        let src = {frame : 42, length : 42}; //end frame - 83
+        let canvasX = 4.2;
+        // px for one frame on the canvas
+        let canvasFrameWidth = 25;
+        let scaledFrameWidth = 60;
+
+        // px for the whole range
+        let canvasWidth = src.length * canvasFrameWidth;
+        let scaledFrames = canvasWidth / scaledFrameWidth;
+
+        expect(canvasWidth).to.equal(1050);
+        expect(scaledFrames).to.equal(17.5);
+
+
+        let scaledFullFrames = (scaledFrames | 0) - 1; // drop possible portion + 1 frame from the end
+        let scaledFrameRemainder = (scaledFrames % 1) + 1; // keep track of possible portion + 1 frame from the end
+
+        expect(scaledFullFrames).to.equal(16);
+        expect(scaledFrameRemainder).to.equal(1.5);
+
+        // source range frame numbers scaled to canvas,
+        // i.e. spread 42 frames from the source images to 10 frames space on the canvas
+        let scaled = thumbs.scaledToCanvas(src.length, scaledFullFrames);
+
+        // frame coordinates on sprite images
+        let srcFrames = scaled.map(n => {
+            let srcFrameNumber = src.frame + n;
+            let srcCoords = thumbs.frameCoordinates(srcFrameNumber);
+
+            return srcCoords;
+        });
+
+        //frame coordinates on the canvas
+        let dstCoords = scaled.map((n, i) => {
+            let x = canvasX + i * scaledFrameWidth;
+            return x;
+        });
+
+        console.log(srcFrames);
+        console.log(dstCoords);
+
+        // coordinates of possible portion + 1 frame from the end
+        let lastFrameNumber = src.frame + src.length - 1;
+        let lastSrcCoords = thumbs.frameCoordinates(lastFrameNumber);
+        lastSrcCoords.width *= scaledFrameRemainder;
+
+        canvasX += scaledFullFrames * scaledFrameWidth;
+        let lastDestCoords = {x : canvasX, width : scaledFrameWidth * scaledFrameRemainder};
+
+
+        console.log(lastSrcCoords.width);
+        expect(lastSrcCoords.width).to.deep.equal(thumbs.frameWidth * 1.5);
+
+        //
+        console.log(lastDestCoords);
+        expect(lastDestCoords).to.deep.equal({x : 964.2, width : 60 * 1.5})
+    });
+});
