@@ -88,6 +88,7 @@ class DiffTimeline extends React.Component<Props, State> {
         const ctx = this.canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let pxPerFrame = this.pxPerFrame;
+        console.log(pxPerFrame);
         for (const [diffRange, range] of this.timelineMap) {
             let {r1, r2, matchType} = diffRange;
 

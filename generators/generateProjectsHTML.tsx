@@ -2,7 +2,7 @@ import {readProjectJson, readRangesJson, readVideoJson} from "./projectUtils";
 import * as React from "react";
 import {renderToString} from "react-dom/server";
 import * as fs from "fs";
-import DiffReport from "../src/DiffReport";
+import {App} from "../src/project";
 
 require('dotenv').config();
 
@@ -50,12 +50,11 @@ function generateHTML (projectId: string, comparedMov: string) {
     const sourceVideo = readVideoJson(sourceMov);
     const comparedVideo = readVideoJson(comparedMov);
     let ranges = readRangesJson(projectId, comparedMov);
-    const app = renderToString(<DiffReport ranges={ranges}
-                                           sourceVideo={sourceVideo}
-                                           comparedVideo={comparedVideo}/>);
+    const app = renderToString(<App projectId={projectId} comparedVideo={comparedVideo} ranges={ranges}
+                                    sourceVideo={sourceVideo}/>);
 
     const script = `<script>
-            diffReport(${JSON.stringify(ranges)}, ${JSON.stringify(sourceVideo)}, ${JSON.stringify(comparedVideo)});
+            diffReport(${JSON.stringify(ranges)}, ${JSON.stringify(sourceVideo)}, ${JSON.stringify(comparedVideo)}, "${projectId}");
     </script>`;
 
     const html = htmlTemplate(projectId, app, script);

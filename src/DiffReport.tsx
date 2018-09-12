@@ -9,11 +9,14 @@ import "./style.css";
 import List from "./components/layout/List";
 import VideoComponent from "./components/video/VideoComponent";
 import {LayoutMode} from "./common/LayoutMode";
+import DiffTimeline from "./components/ranges/DiffTimeline";
 
 interface Props {
     ranges: DiffRange[];
     sourceVideo: Video;
     comparedVideo: Video;
+
+    getImage (videoId: string, page: number): Promise<HTMLImageElement>
 }
 
 interface State {
@@ -45,7 +48,7 @@ class DiffReport extends React.Component<Props, State> {
     }
 
     render () {
-        const {ranges, comparedVideo, sourceVideo} = this.props;
+        const {ranges, comparedVideo, sourceVideo, getImage} = this.props;
         const {types} = this.state;
         const eventsCount = ranges.reduce((counts: any, range) => {
             if (!counts[range.matchType]) {
@@ -56,6 +59,10 @@ class DiffReport extends React.Component<Props, State> {
         }, {});
         return (
             <div className={DiffReport.displayName}>
+                <Row>
+                    <DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}
+                                  getImage={getImage} rangeSelected={(r) => console.log(r)}/>
+                </Row>
                 <Row className={`${DiffReport.displayName}__header`} gap={"10px"}>
                     <Col>
                         <h1>

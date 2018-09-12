@@ -26,9 +26,9 @@ body {
 
 .DiffReport__header {
     box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
-    position: fixed;
+    /*position: fixed;*/
+    /*z-index: 999;*/
     width: 100%;
-    z-index: 999;
     background: whitesmoke;
 }
 

@@ -52,6 +52,7 @@
 
 .DiffTimeline {
     --timeline-zoom: 1;
+    width: 100%;
 }
 
 .DiffTimeline__ranges {
