@@ -1,10 +1,10 @@
-import {IRange} from "../../model/Range";
 import * as React from "react";
 import ThumbsStrip, {FrameStrip, Strip} from "../../model/ThumbsStrip";
+import {DiffRange} from "../../model/DiffRange";
+import Row from "../layout/Row";
 
 interface Props {
-    r1: IRange;
-    r2: IRange;
+    range: DiffRange;
     thumbsStrip: ThumbsStrip;
     cols?: number;
 
@@ -21,11 +21,34 @@ const ROWS_GAP = 10;
 const NAME = "DiffRangeBoard";
 
 class DiffRangeBoard extends React.Component<Props, State> {
-    state: State = {
-        boards : 1
-    };
 
     static displayName = NAME;
+    private r1Rows: Map<FrameStrip, Strip>[];
+    private r2Rows: Map<FrameStrip, Strip>[];
+    private totalBoards: number;
+
+    constructor (props: Props) {
+        super(props);
+        this.state = {
+            boards : 1
+        };
+        this.setRangeMaps(props);
+    }
+
+    componentWillReceiveProps (nextProps: Props) {
+        this.setRangeMaps(nextProps);
+    }
+
+
+    private setRangeMaps (props: Props) {
+        const {range, thumbsStrip, cols} = props;
+        const {r1, r2} = range;
+        let col = (cols || thumbsStrip.cols);
+        let totalRows = Math.ceil(Math.max(r1.length, r2.length) / col);
+        this.totalBoards = totalRows / MAX_ROWS;
+        this.r1Rows = thumbsStrip.framesToCanvas(r1.frame, r1.length, col);
+        this.r2Rows = thumbsStrip.framesToCanvas(r2.frame, r2.length, col);
+    }
 
     setupCanvas = (canvas: HTMLCanvasElement, range1Map: Map<FrameStrip, Strip>[], range2Map: Map<FrameStrip, Strip>[], deltaY: number) => {
         if (!canvas) {
@@ -36,7 +59,6 @@ class DiffRangeBoard extends React.Component<Props, State> {
         this.stripsForRows(range1Map, ctx, 0, deltaY);
         this.stripsForRows(range2Map, ctx, 1, deltaY);
 
-        //TODO: render rows > MAX_ROWS
     };
 
     private stripsForRows (rows: Map<FrameStrip, Strip>[], ctx: CanvasRenderingContext2D, rangeNumber: number = 0, deltaY: number) {
@@ -57,13 +79,11 @@ class DiffRangeBoard extends React.Component<Props, State> {
 
     private renderBoards () {
 
-        const {r1, r2, thumbsStrip, cols} = this.props;
+        const {range, thumbsStrip, cols} = this.props;
+        const {r1, r2} = range;
         let col = (cols || thumbsStrip.cols);
         const width = col * thumbsStrip.frameWidth;
 
-
-        const r1Rows = thumbsStrip.framesToCanvas(r1.frame, r1.length, col);
-        const r2Rows = thumbsStrip.framesToCanvas(r2.frame, r2.length, col);
         let maxRangeRows = Math.ceil(Math.max(r1.length, r2.length) / col);
         let totalHeight = 0;
         let totalRows = 0;
@@ -74,8 +94,8 @@ class DiffRangeBoard extends React.Component<Props, State> {
             let deltaY = totalHeight;
 
             let start = totalRows;
-            let r1 = r1Rows.slice(start, start + renderRows);
-            let r2 = r2Rows.slice(start, start + renderRows);
+            let r1 = this.r1Rows.slice(start, start + renderRows);
+            let r2 = this.r2Rows.slice(start, start + renderRows);
 
             totalHeight += height;
             totalRows += renderRows;
@@ -87,18 +107,18 @@ class DiffRangeBoard extends React.Component<Props, State> {
     }
 
     render () {
-        const {r1, r2, thumbsStrip, cols} = this.props;
         let {boards} = this.state;
-        let col = (cols || thumbsStrip.cols);
-        let totalRows = Math.ceil(Math.max(r1.length, r2.length) / col);
-        let totalBoards = totalRows / MAX_ROWS;
 
         return <div className={`${NAME} container`}>
             <div className={`${NAME}__boards`}>
                 {this.renderBoards()}
-                {boards < totalBoards ?
-                    <button className={`${NAME}__load`} onClick={() => this.setState({boards : boards + 1})}>Load
-                        next</button>
+                {boards < this.totalBoards ?
+                    <Row justify={"center"}>
+                        <button className={`${NAME}__load button`}
+                                onClick={() => this.setState({boards : boards + 1})}>
+                            Load next
+                        </button>
+                    </Row>
                     : null
                 }
             </div>

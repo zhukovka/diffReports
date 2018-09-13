@@ -48,7 +48,7 @@ function matchTypeDescription (range: DiffRange): string {
     return `${r1.length} frames in File 1 were ${matchType} with ${r2.length} frames in File 2`;
 }
 
-
+const NAME = "DiffRangeComponent";
 const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getImage, className, layout, onClick, cols}: Props) => {
     const {r1, r2, matchType} = range;
     const {frameWidth, frameHeight} = thumbsStrip;
@@ -71,11 +71,11 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
     };
 
     function renderRangeFrames () {
-        return <DiffRangeBoard getImage={_getImage} r1={r1} r2={r2} thumbsStrip={thumbsStrip} cols={dCols}/>
+        return <DiffRangeBoard getImage={_getImage} range={range} thumbsStrip={thumbsStrip} cols={dCols}/>
     }
 
     return (
-        <div className={`DiffRangeComponent ${classNameFrom(className)}`} ref={el => _el = el}>
+        <div className={`${NAME} ${classNameFrom(className)}`} ref={el => _el = el}>
             <Row align={"center"}>
                 <Col className={`matchType-${matchType.toLowerCase()}`}>
                     {r1.length ? getThumbsStripComponent(r1, 1, 0)
@@ -108,13 +108,15 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
                     </Row>
                 </Col>
                 <Col>
-                    {layout == LayoutMode.DETAILED &&
-                    <textarea name="notes" id="" cols={30} rows={10}
-                              placeholder="User defined description / Notes:"/>
-                    }
-                    <button onClick={() => onClick(_el)}>
-                        DETAILS
-                    </button>
+                    <Row direction={"col"}>
+                        {layout == LayoutMode.DETAILED &&
+                        <textarea name="notes" id="" cols={30} rows={10}
+                                  placeholder="User defined description / Notes:"/>
+                        }
+                        <button onClick={() => onClick(_el)} className={`${NAME}__details button`}>
+                            {layout == LayoutMode.DETAILED ? "HIDE DETAILS" : "DETAILS"}
+                        </button>
+                    </Row>
                 </Col>
             </Row>
             {layout == LayoutMode.DETAILED &&
@@ -126,5 +128,5 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
     )
 };
 // @ts-ignore
-DiffRangeComponent.displayName = "DiffRangeComponent";
+DiffRangeComponent.displayName = NAME;
 export default DiffRangeComponent;

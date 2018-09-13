@@ -40,6 +40,15 @@ body {
     -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.10), inset 0 -1px 0 rgba(0, 0, 0, 0.07);
 }
 
+.button {
+    background: darkblue;
+    color: white;
+    cursor: pointer;
+    border: none;
+    font-weight: bold;
+    -webkit-appearance: none;
+}
+
 .DiffReport {
     display: flex;
     flex-direction: column;
@@ -61,3 +70,4 @@ body {
     overflow: auto;
     position: relative;
 }
+
