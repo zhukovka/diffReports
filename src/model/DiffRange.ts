@@ -10,13 +10,13 @@ export enum MatchType {
     MOVED_TO = "MOVED_TO"
 }
 export enum MatchTypeColors {
-    ADDED = "green",
+    ADDED = "darkcyan",
     REMOVED = "red",
-    MATCH = "blue",
-    CHANGED = "yellow",
+    MATCH = "darkblue",
+    CHANGED = "darkgreen",
     MOVED = "orange",
-    MOVED_FROM = "orange",
-    MOVED_TO = "orange"
+    MOVED_FROM = "fuchsia",
+    MOVED_TO = "mediumseagreen"
 }
 
 export interface DiffRange {

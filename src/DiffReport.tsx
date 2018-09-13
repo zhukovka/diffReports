@@ -55,7 +55,7 @@ class DiffReport extends React.Component<Props, State> {
 
     render () {
         const {ranges, comparedVideo, sourceVideo, getImage} = this.props;
-        const {types} = this.state;
+        const {types, range} = this.state;
         const eventsCount = ranges.reduce((counts: any, range) => {
             if (!counts[range.matchType]) {
                 counts[range.matchType] = 0;
@@ -67,7 +67,7 @@ class DiffReport extends React.Component<Props, State> {
             <div className={DiffReport.displayName}>
                 <Row className={`${DiffReport.displayName}__header`} gap={"10px"}>
                     <DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}
-                                  getImage={getImage} rangeSelected={this.rangeSelected}/>
+                                  getImage={getImage} rangeSelected={this.rangeSelected} selectedRange={range}/>
                 </Row>
                 <div className={`${DiffReport.displayName}__ranges container`} ref={el => this.rangesContainer = el}>
                     <Row>
@@ -128,8 +128,7 @@ class DiffReport extends React.Component<Props, State> {
 
     rangeSelected = (range: DiffRange) => {
         let rangeIndex = this.props.ranges.indexOf(range);
-        console.log(range, rangeIndex);
-        if (rangeIndex >= 0 && this.rangesContainer) {
+        if (range != this.state.range && rangeIndex >= 0 && this.rangesContainer) {
             const rangesHtml = this.rangesContainer.querySelectorAll(`.${DiffReport.displayName}__diffrange`);
             const rangeEl = rangesHtml ? rangesHtml[rangeIndex] as HTMLElement : null;
             if (rangeEl) {

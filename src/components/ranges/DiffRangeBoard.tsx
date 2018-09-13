@@ -1,6 +1,6 @@
 import * as React from "react";
 import ThumbsStrip, {FrameStrip, Strip} from "../../model/ThumbsStrip";
-import {DiffRange} from "../../model/DiffRange";
+import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
 import Row from "../layout/Row";
 
 interface Props {
@@ -55,6 +55,7 @@ class DiffRangeBoard extends React.Component<Props, State> {
             return;
         }
         const ctx = canvas.getContext('2d');
+        ctx.fillStyle = MatchTypeColors[this.props.range.matchType];
 
         this.stripsForRows(range1Map, ctx, 0, deltaY);
         this.stripsForRows(range2Map, ctx, 1, deltaY);
@@ -68,10 +69,14 @@ class DiffRangeBoard extends React.Component<Props, State> {
             for (const [src, dest] of strip) {
                 let {x : sX, y : sY, width : sWidth, height : sHeight} = src;
                 let {x : dX, width : dWidth, height : dHeight} = dest;
-                let dY = (dest.y * 2 + (rangeNumber * frameHeight) + (dest.y / frameHeight * ROWS_GAP)) - deltaY;
+                let rangeY = (rangeNumber * frameHeight);
+                let gapY = (dest.y / frameHeight * ROWS_GAP);
+                let dY = dest.y * 2 + gapY - deltaY;
+
+                ctx.fillRect(dX, dY, dWidth, dHeight * 2);
 
                 this.props.getImage(src.startFrame, rangeNumber).then(img => {
-                    ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
+                    ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY + rangeY, dWidth, dHeight);
                 });
             }
         }

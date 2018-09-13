@@ -1,12 +1,9 @@
 import * as React from "react";
-import {ChangeEvent, MouseEvent} from "react";
+import {ChangeEvent, MouseEvent, WheelEvent} from "react";
 import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
 import ThumbsStrip, {Coordinates} from "../../model/ThumbsStrip";
 import {Video} from "../../model/Video";
 import {IRange} from "../../model/Range";
-import {WheelEvent} from "react";
-import {Simulate} from "react-dom/test-utils";
-import wheel = Simulate.wheel;
 
 const NAME = "DiffTimeline";
 const FRAME_WIDTH = 120;
@@ -17,6 +14,7 @@ interface Props {
     ranges: DiffRange[];
     sourceVideo: Video;
     comparedVideo: Video;
+    selectedRange?: DiffRange;
 
     getImage (videoId: string, page: number): Promise<HTMLImageElement>
 
@@ -62,6 +60,16 @@ class DiffTimeline extends React.Component<Props, State> {
         };
     }
 
+    componentWillReceiveProps (nextProps: Props) {
+        let selectedRange = nextProps.selectedRange;
+        if (this.container && selectedRange) {
+            let pointerX = this.pointerXFromRange(selectedRange);
+            this.setState({pointerX}, () => {
+                this.scrollToPointer(pointerX);
+            });
+        }
+    }
+
     get pxPerFrame () {
         if (!this.canvas || !this.totalFrameCount) {
             return 0;
@@ -76,8 +84,26 @@ class DiffTimeline extends React.Component<Props, State> {
         }
 
         const maxZoom = Math.min(this.totalFrameCount * this.dFrameWidth, 32767) / container.clientWidth | 0;
-        this.setState({maxZoom});
+        let pointerX = this.pointerXFromRange(this.props.selectedRange);
+        this.setState({maxZoom, pointerX});
     };
+
+    pointerXFromRange (selectedRange: DiffRange) {
+        console.log(selectedRange);
+        let selected = this.timelineMap.get(selectedRange);
+        if (selected) {
+            let {frame, length} = selected;
+            let {pointerX} = this.state;
+            let startX = frame * this.pxPerFrame;
+            let endX = (frame + length) * this.pxPerFrame;
+            if (startX < pointerX && pointerX < endX) {
+                return pointerX;
+            } else {
+                return startX;
+            }
+        }
+        return 0;
+    }
 
     setupCanvas = (canvas: HTMLCanvasElement) => {
         this.canvas = canvas;
@@ -99,6 +125,8 @@ class DiffTimeline extends React.Component<Props, State> {
             this.drawRange(r1, range, sourceVideo.id, pxPerFrame, ctx, 0);
             this.drawRange(r2, range, comparedVideo.id, pxPerFrame, ctx, this.dFrameHeight);
         }
+
+
     };
 
     private drawRange (srcRange: IRange, dstRange: IRange, videoId: string, canvasFrameWidth: number, ctx: CanvasRenderingContext2D, canvasY: number) {
@@ -178,14 +206,15 @@ class DiffTimeline extends React.Component<Props, State> {
 
     onRangeClick = (e: MouseEvent) => {
         let {offsetX : pointerX} = e.nativeEvent;
-        this.setState({pointerX});
-        this.rangeAtPointer(pointerX);
+        let timelineEntry = this.rangeAtPointer(pointerX);
+        this.setState({pointerX}, () => {
+            this.props.rangeSelected(timelineEntry[0]);
+        });
     };
 
     rangeAtPointer (pointerX: number) {
         let timelineFrame = pointerX / this.pxPerFrame | 0;
-        let timelineEntry = this.thumbsStrip.entryByFrame(this.timelineMap, timelineFrame);
-        this.props.rangeSelected(timelineEntry[0]);
+        return this.thumbsStrip.entryByFrame(this.timelineMap, timelineFrame);
     }
 
     scrollToPointer (pointerX: number) {
