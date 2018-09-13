@@ -5,9 +5,10 @@ import ThumbsStrip, {FrameStrip, Strip} from "../../model/ThumbsStrip";
 interface Props {
     r1: IRange;
     r2: IRange;
-    getSrc: (frame: number, rangeNumber: number) => string;
     thumbsStrip: ThumbsStrip;
     cols?: number;
+
+    getImage (frame: number, rangeNumber: number): Promise<HTMLImageElement>
 }
 
 const MAX_ROWS = 20;
@@ -15,7 +16,6 @@ const ROWS_GAP = 10;
 const NAME = "DiffRangeBoard";
 
 class DiffRangeBoard extends React.Component<Props, any> {
-    private imageMap: Map<string, HTMLImageElement> = new Map();
 
     static displayName = NAME;
 
@@ -38,27 +38,17 @@ class DiffRangeBoard extends React.Component<Props, any> {
     };
 
     private stripsForRows (rows: Map<FrameStrip, Strip>[], ctx: CanvasRenderingContext2D, rangeNumber: number = 0) {
-        const {thumbsStrip, getSrc} = this.props;
+        const {thumbsStrip} = this.props;
         let frameHeight = thumbsStrip.frameHeight;
         for (const strip of rows) {
             for (const [src, dest] of strip) {
-                let img: HTMLImageElement;
-                let imgSrc = getSrc(src.startFrame, rangeNumber);
                 let {x : sX, y : sY, width : sWidth, height : sHeight} = src;
                 let {x : dX, width : dWidth, height : dHeight} = dest;
                 let dY = dest.y * 2 + (rangeNumber * frameHeight) + (dest.y / frameHeight * ROWS_GAP);
 
-                if (this.imageMap.has(imgSrc)) {
-                    img = this.imageMap.get(imgSrc);
+                this.props.getImage(src.startFrame, rangeNumber).then(img => {
                     ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
-                } else {
-                    img = new Image();
-                    img.src = imgSrc;
-                    img.onload = () => {
-                        ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
-                        this.imageMap.set(img.src, img);
-                    };
-                }
+                });
             }
         }
     }

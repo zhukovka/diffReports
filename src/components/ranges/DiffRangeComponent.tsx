@@ -19,7 +19,9 @@ interface Props extends ReactElementProps {
     sourceVideo: Video;
     comparedVideo: Video;
     thumbsStrip: ThumbsStrip;
-    getSrc: (page: number, video: Video) => string;
+
+    getImage (videoId: string, page: number): Promise<HTMLImageElement>
+
     layout: LayoutMode;
     onClick?: (range: DiffRange) => void;
 }
@@ -44,37 +46,40 @@ function matchTypeDescription (range: DiffRange): string {
     return `${r1.length} frames in File 1 were ${matchType} with ${r2.length} frames in File 2`;
 }
 
-const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getSrc, className, layout, onClick}: Props) => {
+
+const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getImage, className, layout, onClick}: Props) => {
     const {r1, r2, matchType} = range;
     const {frameWidth, frameHeight} = thumbsStrip;
     let dCols = 10;
-    let getThumbsStripComponent = function (range: IRange, length: number, sourceVideo: Video) {
+
+    let getThumbsStripComponent = function (range: IRange, length: number, rangeNumber: number) {
         let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(range.frame, length, dCols);
         let width = frameWidth * Math.min(length, dCols);
         return <ThumbsStripComponent strips={rows}
                                      width={width}
                                      height={frameHeight * rows.length}
-                                     getSrc={frame => {
-                                         let page = thumbsStrip.pageForFrame(frame);
-                                         return getSrc(page, sourceVideo);
+                                     getImage={frame => {
+                                         return _getImage(frame, rangeNumber);
                                      }}/>;
     };
 
+    const _getImage = (frame: number, rangeNumber: number) => {
+        let page = thumbsStrip.pageForFrame(frame);
+        return getImage(rangeNumber == 0 ? sourceVideo.id : comparedVideo.id, page);
+    };
+
     function renderRangeFrames () {
-        return <DiffRangeBoard getSrc={(frame, rangeNumber) => {
-            let page = thumbsStrip.pageForFrame(frame);
-            return getSrc(page, rangeNumber == 0 ? sourceVideo : comparedVideo);
-        }} r1={r1} r2={r2} thumbsStrip={thumbsStrip}/>
+        return <DiffRangeBoard getImage={_getImage} r1={r1} r2={r2} thumbsStrip={thumbsStrip}/>
     }
 
     return (
         <div className={`DiffRangeComponent ${classNameFrom(className)}`}>
             <Row align={"center"}>
                 <Col className={`matchType-${matchType.toLowerCase()}`}>
-                    {r1.length ? getThumbsStripComponent(r1, 1, sourceVideo)
+                    {r1.length ? getThumbsStripComponent(r1, 1, 0)
                         : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
                     }
-                    {r2.length ? getThumbsStripComponent(r2, 1, comparedVideo)
+                    {r2.length ? getThumbsStripComponent(r2, 1, 1)
                         : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
                     }
                 </Col>

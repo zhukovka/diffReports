@@ -59,82 +59,78 @@ class DiffReport extends React.Component<Props, State> {
         }, {});
         return (
             <div className={DiffReport.displayName}>
-                <Row>
+                <Row className={`${DiffReport.displayName}__header`} gap={"10px"}>
                     <DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}
                                   getImage={getImage} rangeSelected={(r) => console.log(r)}/>
                 </Row>
-                <Row className={`${DiffReport.displayName}__header`} gap={"10px"}>
-                    <Col>
-                        <h1>
-                            COMPARE REPORT
-                        </h1>
-                        <div>
-                            Combined results
-                        </div>
-                    </Col>
-                    <Col col={1}>
-                        <Row gap={"10px"}>
-                            <Col col={1} className={"text-end"}>
-                                <p>
-                                    File 1
-                                </p>
-                                <VideoComponent video={sourceVideo}/>
-                            </Col>
-                            <Col>
-                                <p>
-                                    COMPARED TO
-                                </p>
-                            </Col>
-                            <Col col={1}>
-                                <p>File 2</p>
-                                <VideoComponent video={comparedVideo}/>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col>
-                        <Row>
-                            <div>
-                                Compare events:
-                            </div>
-                            <List>
-                                {Object.keys(MatchType).map(type => {
-                                    return (
-                                        <li key={type}>
-                                            <input type="checkbox" id={type} value={type}
-                                                   checked={!!types[type]}
-                                                   onChange={e => this.toggleType(type)}/>
-                                            <label htmlFor={type}>
-                                                {type} ({eventsCount[type] || 0})
-                                            </label>
-                                        </li>
-                                    )
-                                })}
-                            </List>
-                        </Row>
-                    </Col>
-                </Row>
                 <div className={`${DiffReport.displayName}__ranges`}>
+                    <Row>
+                        <Col>
+                            <h1>
+                                COMPARE REPORT
+                            </h1>
+                            <div>
+                                Combined results
+                            </div>
+                        </Col>
+                        <Col col={1}>
+                            <Row gap={"10px"}>
+                                <Col col={1} className={"text-end"}>
+                                    <p>
+                                        File 1
+                                    </p>
+                                    <VideoComponent video={sourceVideo}/>
+                                </Col>
+                                <Col>
+                                    <p>
+                                        COMPARED TO
+                                    </p>
+                                </Col>
+                                <Col col={1}>
+                                    <p>File 2</p>
+                                    <VideoComponent video={comparedVideo}/>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col>
+                            <Row>
+                                <div>
+                                    Compare events:
+                                </div>
+                                <List>
+                                    {Object.keys(MatchType).map(type => {
+                                        return (
+                                            <li key={type}>
+                                                <input type="checkbox" id={type} value={type}
+                                                       checked={!!types[type]}
+                                                       onChange={e => this.toggleType(type)}/>
+                                                <label htmlFor={type}>
+                                                    {type} ({eventsCount[type] || 0})
+                                                </label>
+                                            </li>
+                                        )
+                                    })}
+                                </List>
+                            </Row>
+                        </Col>
+                    </Row>
+
                     {this.renderRanges()}
                 </div>
             </div>)
     }
-
-    getSrc = (page: number, video: Video) => {
-        let padStart = String(page + 1).padStart(3, '0');
-        return `${video.id}/stripes/out${padStart}.jpg`;
-    };
 
     onRangeClick = (range: DiffRange) => {
         this.setState({range});
     };
 
     private renderRanges () {
-        const {ranges, comparedVideo, sourceVideo} = this.props;
+        const {ranges, comparedVideo, sourceVideo, getImage} = this.props;
         const {types} = this.state;
         return ranges.filter(r => !!types[r.matchType]).map((range, i) => {
             let props = {
                 range, comparedVideo, sourceVideo,
-                getSrc : this.getSrc,
+                getImage,
                 thumbsStrip : this.thumbsStrip,
                 layout : this.state.range == range ? LayoutMode.DETAILED : LayoutMode.BASIC,
                 onClick : this.onRangeClick

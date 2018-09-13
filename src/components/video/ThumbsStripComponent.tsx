@@ -3,16 +3,17 @@ import * as React from "react";
 import "./video.css";
 
 interface Props {
-    getSrc: (frame: number) => string;
     strips: Map<FrameStrip, Strip>[],
     width: number,
     height: number
+
+    getImage (frame: number): Promise<HTMLImageElement>
 }
 
 class ThumbsStripComponent extends React.Component<Props, any> {
 
     setupCanvas = (canvas: HTMLCanvasElement) => {
-        const {strips, getSrc} = this.props;
+        const {strips, getImage} = this.props;
         if (!canvas || !strips.length) {
             return;
         }
@@ -20,12 +21,9 @@ class ThumbsStripComponent extends React.Component<Props, any> {
         for (const strip of strips) {
             const images = [...strip.keys()].map((src, i) => {
                 let dest = strip.get(src);
-                const img = new Image();
-                img.src = getSrc(src.startFrame);
-                img.onload = () => {
+                getImage(src.startFrame).then(img => {
                     ctx.drawImage(img, src.x, src.y, src.width, src.height, dest.x, dest.y, dest.width, dest.height);
-                };
-                return img;
+                });
             });
         }
 
