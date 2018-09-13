@@ -41,13 +41,25 @@
 }
 
 .DiffRangeBoard {
-    --board-maxheight: 100vh;
+    --board-maxheight: 75vh;
+    width: calc(100% - 20px);
     max-height: var(--board-maxheight);
     overflow: auto;
+    position: relative;
 }
 
 .DiffRangeBoard__canvas {
     width: 100%;
+}
+
+.DiffRangeBoard__boards {
+    position: relative;
+}
+
+.DiffRangeBoard__load {
+    position: absolute;
+    bottom: 0;
+    left: 0;
 }
 
 .DiffTimeline {
@@ -67,4 +79,8 @@
     left: 0;
     top: 0;
     background: red;
+}
+
+.DiffTimeline__zoom input[type=range] {
+    width: 100%;
 }

@@ -23,7 +23,9 @@ interface Props extends ReactElementProps {
     getImage (videoId: string, page: number): Promise<HTMLImageElement>
 
     layout: LayoutMode;
-    onClick?: (range: DiffRange) => void;
+    cols?: number;
+
+    onClick? (componentElement: HTMLElement): void;
 }
 
 function matchTypeDescription (range: DiffRange): string {
@@ -47,11 +49,11 @@ function matchTypeDescription (range: DiffRange): string {
 }
 
 
-const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getImage, className, layout, onClick}: Props) => {
+const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getImage, className, layout, onClick, cols}: Props) => {
     const {r1, r2, matchType} = range;
     const {frameWidth, frameHeight} = thumbsStrip;
-    let dCols = 10;
-
+    let dCols = cols || 10;
+    let _el: HTMLElement;
     let getThumbsStripComponent = function (range: IRange, length: number, rangeNumber: number) {
         let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(range.frame, length, dCols);
         let width = frameWidth * Math.min(length, dCols);
@@ -69,11 +71,11 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
     };
 
     function renderRangeFrames () {
-        return <DiffRangeBoard getImage={_getImage} r1={r1} r2={r2} thumbsStrip={thumbsStrip}/>
+        return <DiffRangeBoard getImage={_getImage} r1={r1} r2={r2} thumbsStrip={thumbsStrip} cols={dCols}/>
     }
 
     return (
-        <div className={`DiffRangeComponent ${classNameFrom(className)}`}>
+        <div className={`DiffRangeComponent ${classNameFrom(className)}`} ref={el => _el = el}>
             <Row align={"center"}>
                 <Col className={`matchType-${matchType.toLowerCase()}`}>
                     {r1.length ? getThumbsStripComponent(r1, 1, 0)
@@ -106,13 +108,13 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
                     </Row>
                 </Col>
                 <Col>
-                    {layout == LayoutMode.BASIC ?
-                        <button onClick={() => onClick(range)}>
-                            DETAILS
-                        </button> :
-                        <textarea name="notes" id="" cols={30} rows={10}
-                                  placeholder="User defined description / Notes:"/>
+                    {layout == LayoutMode.DETAILED &&
+                    <textarea name="notes" id="" cols={30} rows={10}
+                              placeholder="User defined description / Notes:"/>
                     }
+                    <button onClick={() => onClick(_el)}>
+                        DETAILS
+                    </button>
                 </Col>
             </Row>
             {layout == LayoutMode.DETAILED &&

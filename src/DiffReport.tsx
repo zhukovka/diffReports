@@ -22,6 +22,7 @@ interface Props {
 interface State {
     types: { [type: string]: boolean };
     range: DiffRange;
+
 }
 
 const COLS = 10;
@@ -31,6 +32,7 @@ const FRAME_HEIGHT = 68;
 class DiffReport extends React.Component<Props, State> {
     static displayName = "DiffReport";
     private readonly thumbsStrip: ThumbsStrip;
+    private rangesContainer: HTMLDivElement;
 
     constructor (props: Props) {
         super(props);
@@ -39,12 +41,16 @@ class DiffReport extends React.Component<Props, State> {
         }
         this.state = {
             range : null,
-            types : Object.assign({}, MatchType as any)
+            types : Object.assign({}, MatchType as any),
         };
     }
 
     componentDidMount () {
         console.log('Component Mount on Client Side...', this.props);
+        console.log('ref', this.rangesContainer);
+        if (this.rangesContainer) {
+            this.setState({});
+        }
     }
 
     render () {
@@ -61,9 +67,9 @@ class DiffReport extends React.Component<Props, State> {
             <div className={DiffReport.displayName}>
                 <Row className={`${DiffReport.displayName}__header`} gap={"10px"}>
                     <DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}
-                                  getImage={getImage} rangeSelected={(r) => console.log(r)}/>
+                                  getImage={getImage} rangeSelected={this.rangeSelected}/>
                 </Row>
-                <div className={`${DiffReport.displayName}__ranges`}>
+                <div className={`${DiffReport.displayName}__ranges container`} ref={el => this.rangesContainer = el}>
                     <Row>
                         <Col>
                             <h1>
@@ -120,22 +126,44 @@ class DiffReport extends React.Component<Props, State> {
             </div>)
     }
 
-    onRangeClick = (range: DiffRange) => {
-        this.setState({range});
+    rangeSelected = (range: DiffRange) => {
+        let rangeIndex = this.props.ranges.indexOf(range);
+        console.log(range, rangeIndex);
+        if (rangeIndex >= 0 && this.rangesContainer) {
+            const rangesHtml = this.rangesContainer.querySelectorAll(`.${DiffReport.displayName}__diffrange`);
+            const rangeEl = rangesHtml ? rangesHtml[rangeIndex] as HTMLElement : null;
+            if (rangeEl) {
+                this.onRangeClick(rangeEl, range);
+            }
+        }
+    };
+
+    onRangeClick = (componentElement: HTMLElement, range: DiffRange) => {
+        this.setState({range : this.state.range == range ? null : range}, () => {
+            if (this.rangesContainer) {
+                this.rangesContainer.scrollTo(0, componentElement.offsetTop);
+            }
+        });
     };
 
     private renderRanges () {
-        const {ranges, comparedVideo, sourceVideo, getImage} = this.props;
         const {types} = this.state;
+        if (!this.rangesContainer) {
+            return null;
+        }
+
+        const {ranges, comparedVideo, sourceVideo, getImage} = this.props;
+        const cols = this.rangesContainer.clientWidth / this.thumbsStrip.frameWidth | 0;
         return ranges.filter(r => !!types[r.matchType]).map((range, i) => {
             let props = {
                 range, comparedVideo, sourceVideo,
+                cols,
                 getImage,
                 thumbsStrip : this.thumbsStrip,
                 layout : this.state.range == range ? LayoutMode.DETAILED : LayoutMode.BASIC,
-                onClick : this.onRangeClick
+                onClick : (el: HTMLElement) => this.onRangeClick(el, range)
             };
-            return (<DiffRangeComponent key={i} {...props}/>);
+            return (<DiffRangeComponent key={i} {...props} className={`${DiffReport.displayName}__diffrange`}/>);
         });
     }
 

@@ -11,40 +11,42 @@ interface Props {
     getImage (frame: number, rangeNumber: number): Promise<HTMLImageElement>
 }
 
+
+interface State {
+    boards: number
+}
+
 const MAX_ROWS = 20;
 const ROWS_GAP = 10;
 const NAME = "DiffRangeBoard";
 
-class DiffRangeBoard extends React.Component<Props, any> {
+class DiffRangeBoard extends React.Component<Props, State> {
+    state: State = {
+        boards : 1
+    };
 
     static displayName = NAME;
 
-    setupCanvas = (canvas: HTMLCanvasElement) => {
-        const {r1, r2, thumbsStrip, cols} = this.props;
+    setupCanvas = (canvas: HTMLCanvasElement, range1Map: Map<FrameStrip, Strip>[], range2Map: Map<FrameStrip, Strip>[], deltaY: number) => {
         if (!canvas) {
             return;
         }
         const ctx = canvas.getContext('2d');
 
-        let col = (cols || thumbsStrip.cols);
-        let totalRows = Math.ceil(Math.max(r1.length, r2.length) / col) * 2;
-        let renderRows = Math.min(MAX_ROWS, totalRows);
+        this.stripsForRows(range1Map, ctx, 0, deltaY);
+        this.stripsForRows(range2Map, ctx, 1, deltaY);
 
-        const r1Rows = thumbsStrip.framesToCanvas(r1.frame, r1.length, cols || thumbsStrip.cols);
-        const r2Rows = thumbsStrip.framesToCanvas(r2.frame, r2.length, cols || thumbsStrip.cols);
-        this.stripsForRows(r1Rows.slice(0, renderRows), ctx, 0);
-        this.stripsForRows(r2Rows.slice(0, renderRows), ctx, 1);
         //TODO: render rows > MAX_ROWS
     };
 
-    private stripsForRows (rows: Map<FrameStrip, Strip>[], ctx: CanvasRenderingContext2D, rangeNumber: number = 0) {
+    private stripsForRows (rows: Map<FrameStrip, Strip>[], ctx: CanvasRenderingContext2D, rangeNumber: number = 0, deltaY: number) {
         const {thumbsStrip} = this.props;
         let frameHeight = thumbsStrip.frameHeight;
         for (const strip of rows) {
             for (const [src, dest] of strip) {
                 let {x : sX, y : sY, width : sWidth, height : sHeight} = src;
                 let {x : dX, width : dWidth, height : dHeight} = dest;
-                let dY = dest.y * 2 + (rangeNumber * frameHeight) + (dest.y / frameHeight * ROWS_GAP);
+                let dY = (dest.y * 2 + (rangeNumber * frameHeight) + (dest.y / frameHeight * ROWS_GAP)) - deltaY;
 
                 this.props.getImage(src.startFrame, rangeNumber).then(img => {
                     ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
@@ -53,16 +55,53 @@ class DiffRangeBoard extends React.Component<Props, any> {
         }
     }
 
-    render () {
+    private renderBoards () {
+
         const {r1, r2, thumbsStrip, cols} = this.props;
         let col = (cols || thumbsStrip.cols);
         const width = col * thumbsStrip.frameWidth;
-        let maxRangeRows = Math.ceil(Math.max(r1.length, r2.length) / col);
-        let renderRows = Math.min(maxRangeRows, MAX_ROWS);
-        const height = renderRows * 2 * thumbsStrip.frameHeight + ROWS_GAP * renderRows;
 
-        return <div className={NAME}>
-            <canvas className={`${NAME}__canvas`} ref={this.setupCanvas} width={width} height={height}/>
+
+        const r1Rows = thumbsStrip.framesToCanvas(r1.frame, r1.length, col);
+        const r2Rows = thumbsStrip.framesToCanvas(r2.frame, r2.length, col);
+        let maxRangeRows = Math.ceil(Math.max(r1.length, r2.length) / col);
+        let totalHeight = 0;
+        let totalRows = 0;
+        return Array.from({length : this.state.boards}, (v, i) => {
+            let renderRows = Math.min(maxRangeRows - totalRows, MAX_ROWS);
+
+            const height = renderRows * 2 * thumbsStrip.frameHeight + ROWS_GAP * renderRows;
+            let deltaY = totalHeight;
+
+            let start = totalRows;
+            let r1 = r1Rows.slice(start, start + renderRows);
+            let r2 = r2Rows.slice(start, start + renderRows);
+
+            totalHeight += height;
+            totalRows += renderRows;
+
+            return (<canvas className={`${NAME}__canvas`} key={`board-${i}`}
+                            ref={el => this.setupCanvas(el, r1, r2, deltaY)}
+                            width={width} height={height}/>);
+        });
+    }
+
+    render () {
+        const {r1, r2, thumbsStrip, cols} = this.props;
+        let {boards} = this.state;
+        let col = (cols || thumbsStrip.cols);
+        let totalRows = Math.ceil(Math.max(r1.length, r2.length) / col);
+        let totalBoards = totalRows / MAX_ROWS;
+
+        return <div className={`${NAME} container`}>
+            <div className={`${NAME}__boards`}>
+                {this.renderBoards()}
+                {boards < totalBoards ?
+                    <button className={`${NAME}__load`} onClick={() => this.setState({boards : boards + 1})}>Load
+                        next</button>
+                    : null
+                }
+            </div>
         </div>
     }
 }

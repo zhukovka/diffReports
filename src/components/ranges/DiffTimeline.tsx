@@ -4,6 +4,9 @@ import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
 import ThumbsStrip, {Coordinates} from "../../model/ThumbsStrip";
 import {Video} from "../../model/Video";
 import {IRange} from "../../model/Range";
+import {WheelEvent} from "react";
+import {Simulate} from "react-dom/test-utils";
+import wheel = Simulate.wheel;
 
 const NAME = "DiffTimeline";
 const FRAME_WIDTH = 120;
@@ -88,7 +91,6 @@ class DiffTimeline extends React.Component<Props, State> {
         const ctx = this.canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let pxPerFrame = this.pxPerFrame;
-        console.log(pxPerFrame);
         for (const [diffRange, range] of this.timelineMap) {
             let {r1, r2, matchType} = diffRange;
 
@@ -193,13 +195,19 @@ class DiffTimeline extends React.Component<Props, State> {
         this.container.scrollTo(pointerX - this.container.clientWidth / 2, 0);
     }
 
+    onWheel = (e: WheelEvent) => {
+        if (this.container && e.deltaY != 0) {
+            this.container.scrollTo(this.container.scrollLeft + e.deltaY, 0);
+        }
+    };
+
     render () {
         const {zoom, pointerX, maxZoom} = this.state;
         const height = this.dFrameHeight * 2;
         let style = {'--timeline-zoom' : zoom};
         // @ts-ignore
         return <div className={NAME} style={style}>
-            <div className={"container"} ref={this.setupContainer}>
+            <div className={"container overflow-x"} ref={this.setupContainer} onWheel={this.onWheel}>
                 <div className={`${NAME}__ranges`} onClick={this.onRangeClick}>
                     <canvas className={`${NAME}__canvas`} ref={this.setupCanvas} width={1200}
                             height={height}/>
