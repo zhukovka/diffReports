@@ -68,6 +68,7 @@ if (process.env.NODE_ENV == 'production') {
     fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `./reports/${projectId}/project.bundle.js`);
     fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `./reports/${projectId}/project.css`);
 //    mkdir -p reports/salt_color_trim3k/salt_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/square/ "$_"
+//    mkdir -p reports/salt_color_trim3k/salt_dc_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/square/ "$_"
 }
 console.log(generateHTML(projectId, comparedMov));
 

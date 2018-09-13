@@ -7,7 +7,7 @@ class DiffReportsApi {
 
     getImage (videoId: string, page: number): Promise<HTMLImageElement> {
         let padStart = String(page + 1).padStart(3, '0');
-        const imgSrc = `/reports/${this.projectId}/${videoId}/stripes/out${padStart}.jpg`;
+        const imgSrc = `${videoId}/stripes/out${padStart}.jpg`;
         return new Promise((resolve, reject) => {
             let img: HTMLImageElement;
 
