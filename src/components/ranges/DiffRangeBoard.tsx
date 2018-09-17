@@ -74,7 +74,6 @@ class DiffRangeBoard extends React.Component<Props, State> {
                 let dY = dest.y * 2 + gapY - deltaY;
 
                 ctx.fillRect(dX, dY, dWidth, dHeight * 2);
-
                 this.props.getImage(src.startFrame, rangeNumber).then(img => {
                     ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY + rangeY, dWidth, dHeight);
                 });

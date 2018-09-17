@@ -46,8 +46,6 @@ class DiffReport extends React.Component<Props, State> {
     }
 
     componentDidMount () {
-        console.log('Component Mount on Client Side...', this.props);
-        console.log('ref', this.rangesContainer);
         if (this.rangesContainer) {
             this.setState({});
         }

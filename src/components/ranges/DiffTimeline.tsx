@@ -89,7 +89,6 @@ class DiffTimeline extends React.Component<Props, State> {
     };
 
     pointerXFromRange (selectedRange: DiffRange) {
-        console.log(selectedRange);
         let selected = this.timelineMap.get(selectedRange);
         if (selected) {
             let {frame, length} = selected;
