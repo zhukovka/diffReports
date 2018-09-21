@@ -7,7 +7,7 @@ interface Props {
     width: number,
     height: number
 
-    getImage (frame: number): Promise<HTMLImageElement>
+    getImage (frame: number): Promise<ImageBitmap>
 }
 
 class ThumbsStripComponent extends React.Component<Props, any> {

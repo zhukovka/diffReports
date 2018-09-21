@@ -20,7 +20,7 @@ interface Props extends ReactElementProps {
     comparedVideo: Video;
     thumbsStrip: ThumbsStrip;
 
-    getImage (videoId: string, page: number): Promise<HTMLImageElement>
+    getImage (videoId: string, page: number): Promise<ImageBitmap>
 
     layout: LayoutMode;
     cols?: number;

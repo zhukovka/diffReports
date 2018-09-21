@@ -8,7 +8,7 @@ interface Props {
     thumbsStrip: ThumbsStrip;
     cols?: number;
 
-    getImage (frame: number, rangeNumber: number): Promise<HTMLImageElement>
+    getImage (frame: number, rangeNumber: number): Promise<ImageBitmap>
 }
 
 

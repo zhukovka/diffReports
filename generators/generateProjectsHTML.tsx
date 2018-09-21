@@ -38,7 +38,7 @@ export function htmlTemplate (title: string, reactDom: string, script: string) {
 }
 
 function writeRangesHTML (sourceId: string, html: string): string {
-    let path = `./reports/${sourceId}/index.html`;
+    let path = `${process.env.REPORTS_PATH}/${sourceId}/index.html`;
     fs.writeFileSync(path, html, 'utf8');
     return path;
 }
@@ -65,10 +65,11 @@ let {projectId, comparedMov} = program;
 
 
 if (process.env.NODE_ENV == 'production') {
-    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `./reports/${projectId}/project.bundle.js`);
-    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `./reports/${projectId}/project.css`);
+    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `${process.env.REPORTS_PATH}/${projectId}/project.bundle.js`);
+    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `${process.env.REPORTS_PATH}/${projectId}/project.css`);
 //    mkdir -p reports/salt_color_trim3k/salt_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/square/ "$_"
 //    mkdir -p reports/salt_color_trim3k/salt_dc_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/square/ "$_"
+    //npm run bundle -- --projectId K02_K04 --comparedMov kid_brother_133_HD_prores_422hq_709_H264-TC-WM.mp4
 }
 console.log(generateHTML(projectId, comparedMov));
 

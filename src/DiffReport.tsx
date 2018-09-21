@@ -16,7 +16,7 @@ interface Props {
     sourceVideo: Video;
     comparedVideo: Video;
 
-    getImage (videoId: string, page: number): Promise<HTMLImageElement>
+    getImage (videoId: string, page: number): Promise<ImageBitmap>
 }
 
 interface State {

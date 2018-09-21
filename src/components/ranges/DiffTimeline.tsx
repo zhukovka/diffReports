@@ -16,7 +16,7 @@ interface Props {
     comparedVideo: Video;
     selectedRange?: DiffRange;
 
-    getImage (videoId: string, page: number): Promise<HTMLImageElement>
+    getImage (videoId: string, page: number): Promise<ImageBitmap>
 
     rangeSelected (range: DiffRange): void
 }
