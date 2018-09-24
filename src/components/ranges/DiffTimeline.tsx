@@ -1,9 +1,9 @@
 import * as React from "react";
 import {ChangeEvent, MouseEvent, WheelEvent} from "react";
-import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
-import ThumbsStrip, {Coordinates} from "../../model/ThumbsStrip";
-import {Video} from "../../model/Video";
-import {IRange} from "../../model/Range";
+import {DiffRange, MatchTypeColors} from "bigfootjs/dist/DiffRange";
+import {IRange} from "bigfootJS/dist/Range";
+import {Video} from "bigfootJS/dist/Video";
+import ThumbsStrip, {Coordinates} from "bigfootjs/dist/ThumbsStrip";
 
 const NAME = "DiffTimeline";
 const FRAME_WIDTH = 120;
@@ -16,7 +16,7 @@ interface Props {
     comparedVideo: Video;
     selectedRange?: DiffRange;
 
-    getImage (videoId: string, page: number): Promise<ImageBitmap>
+    getImage (videoId: string, page: number): Promise<HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap>
 
     rangeSelected (range: DiffRange): void
 }

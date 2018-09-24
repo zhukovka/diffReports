@@ -1,9 +1,9 @@
 import * as ReactDOM from "react-dom";
 import * as React from "react";
-import {DiffRange} from "./model/DiffRange";
-import {Video} from "./model/Video";
 import DiffTimeline from "./components/ranges/DiffTimeline";
 import DiffReportsApi from "./model/DiffReportsApi";
+import {DiffRange} from "bigfootJS/dist/DiffRange";
+import {Video} from "bigfootJS/dist/Video";
 
 interface Props {
     ranges: DiffRange[],

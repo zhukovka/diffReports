@@ -1,8 +1,8 @@
 import 'mocha';
 import {expect} from 'chai';
-import ThumbsStrip from "../src/model/ThumbsStrip";
-import {DiffRange} from "../src/model/DiffRange";
-import {containsFrame, IRange} from "../src/model/Range";
+import {DiffRange} from 'bigfootJS/dist/DiffRange';
+import {IRange} from 'bigfootJS/dist/Range';
+import ThumbsStrip from 'bigfootjs/dist/ThumbsStrip';
 
 const cols = 10;
 const rows = 24;

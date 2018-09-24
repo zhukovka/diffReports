@@ -1,7 +1,7 @@
 import * as React from "react";
-import ThumbsStrip, {FrameStrip, Strip} from "../../model/ThumbsStrip";
-import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
 import Row from "../layout/Row";
+import {MatchTypeColors, DiffRange} from "bigfootJS/dist/DiffRange";
+import ThumbsStrip, {FrameStrip, Strip} from "bigfootjs/dist/ThumbsStrip";
 
 interface Props {
     range: DiffRange;

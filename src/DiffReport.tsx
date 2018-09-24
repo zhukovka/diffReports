@@ -1,15 +1,12 @@
 import * as React from "react";
-import {DiffRange, MatchType} from "./model/DiffRange";
 import DiffRangeComponent from "./components/ranges/DiffRangeComponent";
-import {Video} from "./model/Video";
 import Row from "./components/layout/Row";
-import ThumbsStrip from "./model/ThumbsStrip";
-import Col from "./components/layout/Col";
 import "./style.css";
-import List from "./components/layout/List";
-import VideoComponent from "./components/video/VideoComponent";
 import {LayoutMode} from "./common/LayoutMode";
 import DiffTimeline from "./components/ranges/DiffTimeline";
+import {DiffRange, MatchType} from "bigfootJS/dist/DiffRange";
+import {Video} from "bigfootJS/dist/Video";
+import ThumbsStrip from "bigfootjs/dist/ThumbsStrip";
 
 interface Props {
     ranges: DiffRange[];
@@ -67,60 +64,6 @@ class DiffReport extends React.Component<Props, State> {
                     <DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}
                                   getImage={getImage} rangeSelected={this.rangeSelected} selectedRange={range}/>
                 </Row>
-                <div className={`${DiffReport.displayName}__ranges container`} ref={el => this.rangesContainer = el}>
-                    <Row>
-                        <Col>
-                            <h1>
-                                COMPARE REPORT
-                            </h1>
-                            <div>
-                                Combined results
-                            </div>
-                        </Col>
-                        <Col col={1}>
-                            <Row gap={"10px"}>
-                                <Col col={1} className={"text-end"}>
-                                    <p>
-                                        File 1
-                                    </p>
-                                    <VideoComponent video={sourceVideo}/>
-                                </Col>
-                                <Col>
-                                    <p>
-                                        COMPARED TO
-                                    </p>
-                                </Col>
-                                <Col col={1}>
-                                    <p>File 2</p>
-                                    <VideoComponent video={comparedVideo}/>
-                                </Col>
-                            </Row>
-                        </Col>
-                        <Col>
-                            <Row>
-                                <div>
-                                    Compare events:
-                                </div>
-                                <List>
-                                    {Object.keys(MatchType).map(type => {
-                                        return (
-                                            <li key={type}>
-                                                <input type="checkbox" id={type} value={type}
-                                                       checked={!!types[type]}
-                                                       onChange={e => this.toggleType(type)}/>
-                                                <label htmlFor={type}>
-                                                    {type} ({eventsCount[type] || 0})
-                                                </label>
-                                            </li>
-                                        )
-                                    })}
-                                </List>
-                            </Row>
-                        </Col>
-                    </Row>
-
-                    {this.renderRanges()}
-                </div>
             </div>)
     }
 

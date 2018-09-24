@@ -16,9 +16,9 @@ program
 
 export function htmlTemplate (title: string, reactDom: string, script: string) {
     let staticDir = '.';
-    if (process.env.NODE_ENV !== 'production') {
-        staticDir = `/${process.env.BUNDLE_PATH}`;
-    }
+    // if (process.env.NODE_ENV !== 'production') {
+    //     staticDir = `/${process.env.BUNDLE_PATH}`;
+    // }
     return `
         <!DOCTYPE html>
         <html>
@@ -64,9 +64,9 @@ function generateHTML (projectId: string, comparedMov: string) {
 let {projectId, comparedMov} = program;
 
 
+fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `${process.env.REPORTS_PATH}/${projectId}/project.bundle.js`);
+fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `${process.env.REPORTS_PATH}/${projectId}/project.css`);
 if (process.env.NODE_ENV == 'production') {
-    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `${process.env.REPORTS_PATH}/${projectId}/project.bundle.js`);
-    fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `${process.env.REPORTS_PATH}/${projectId}/project.css`);
 //    mkdir -p reports/salt_color_trim3k/salt_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/square/ "$_"
 //    mkdir -p reports/salt_color_trim3k/salt_dc_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/square/ "$_"
     //npm run bundle -- --projectId K02_K04 --comparedMov kid_brother_133_HD_prores_422hq_709_H264-TC-WM.mp4

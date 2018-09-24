@@ -1,9 +1,9 @@
 import * as React from "react";
 import {ReactElementProps} from "../../common/react-interfaces";
 import {classNameFrom} from "../../utils/CSSUtils";
-import {Video} from "../../model/Video";
 import {formatTime} from "../../utils/TimeUtils";
 import "./video.css";
+import {Video} from "bigfootJS/dist/Video";
 
 interface VideoProps extends ReactElementProps {
     video: Video;
