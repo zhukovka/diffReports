@@ -1,9 +1,9 @@
 import * as React from "react";
 import {ChangeEvent, MouseEvent, WheelEvent} from "react";
-import {DiffRange, MatchTypeColors} from "bigfootjs/dist/DiffRange";
-import {IRange} from "bigfootJS/dist/Range";
-import {Video} from "bigfootJS/dist/Video";
+import {Video} from "bigfootjs/dist/Video";
 import ThumbsStrip, {Coordinates} from "bigfootjs/dist/ThumbsStrip";
+import {DiffRange, MatchTypeColors} from "bigfootJS/dist/DiffRange";
+import {IRange} from "bigfootJS/dist/Range";
 
 const NAME = "DiffTimeline";
 const FRAME_WIDTH = 120;
@@ -50,7 +50,7 @@ class DiffTimeline extends React.Component<Props, State> {
                 let {r1, r2} = range;
                 return acc + Math.max(r1.length, r2.length);
             }, 0);
-            this.timelineMap = this.thumbsStrip.diffRangesToTimeline(ranges);
+            this.timelineMap = this.thumbsStrip.diffRangesTimeline(ranges);
             this.drawCount = 0;
         }
         this.state = {
@@ -109,90 +109,27 @@ class DiffTimeline extends React.Component<Props, State> {
         if (!canvas) {
             return;
         }
-        const {ranges, sourceVideo, comparedVideo} = this.props;
         this.drawCount++;
-
         canvas.width = canvas.parentElement.clientWidth;
         const ctx = this.canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let pxPerFrame = this.pxPerFrame;
-        for (const [diffRange, range] of this.timelineMap) {
-            let {r1, r2, matchType} = diffRange;
-
-            ctx.fillStyle = MatchTypeColors[matchType];
-
-            this.drawRange(r1, range, sourceVideo.id, pxPerFrame, ctx, 0);
-            this.drawRange(r2, range, comparedVideo.id, pxPerFrame, ctx, this.dFrameHeight);
-        }
-
-
+        this.thumbsStrip.timelineDrawer(this.timelineMap, pxPerFrame, this.drawTimeline);
     };
 
-    private drawRange (srcRange: IRange, dstRange: IRange, videoId: string, canvasFrameWidth: number, ctx: CanvasRenderingContext2D, canvasY: number) {
-
-        let {frame : srcFrame, length : srcLength} = srcRange;
-        let {frame : dstFrame, length : dstLength} = dstRange;
-
-        let canvasX = dstFrame * canvasFrameWidth;
-
-        let scaledFrameWidth = this.dFrameWidth;
-
-        // px for the whole range
-        let canvasWidth = dstLength * canvasFrameWidth;
-
-        ctx.fillRect(canvasX, canvasY, canvasWidth, this.dFrameHeight);
-        if (!srcLength) {
+    drawTimeline = (diffRange: DiffRange, frameNumber: number, src: Coordinates, dest: Coordinates) => {
+        if (!this.canvas) {
             return;
         }
-
-        let scaledFrames = canvasWidth / scaledFrameWidth;
-
-        let scaledFullFrames = (scaledFrames | 0); // drop possible frame portion from the end
-        let scaledFrameRemainder = (scaledFrames % 1); // keep track of possible frame portion from the end
-
-        // source range frame numbers scaled to canvas,
-        // i.e. spread 42 frames from the source images to 10 frames space on the canvas
-        this.thumbsStrip.scaledToCanvas(srcLength, scaledFullFrames).forEach((n, i) => {
-            let srcFrameNumber = srcFrame + n;
-            let src = this.thumbsStrip.frameCoordinates(srcFrameNumber);
-
-            let dx = canvasX + i * scaledFrameWidth;
-            let dest = {x : dx, y : canvasY, height : this.dFrameHeight, width : scaledFrameWidth};
-
-            this.drawFrame(srcFrameNumber, videoId, src, dest);
-        });
-
-        if (scaledFrameRemainder > 0) {
-            // coordinates of possible portion + 1 frame from the end
-            let lastFrameNumber = srcFrame + srcLength - 1;
-            let lastSrcCoords = this.thumbsStrip.frameCoordinates(lastFrameNumber);
-            lastSrcCoords.width = lastSrcCoords.width * scaledFrameRemainder;
-
-            canvasX += scaledFullFrames * scaledFrameWidth;
-            let lastDestCoords = {
-                x : canvasX,
-                y : canvasY,
-                height : this.dFrameHeight,
-                width : scaledFrameWidth * scaledFrameRemainder
-            };
-            this.drawFrame(lastFrameNumber, videoId, lastSrcCoords, lastDestCoords);
-        }
-    }
-
-    drawFrame (frameNumber: number, videoId: string, src: Coordinates, dest: Coordinates) {
+        const ctx = this.canvas.getContext('2d');
+        let {r1, r2, matchType} = diffRange;
         let drawCount = this.drawCount;
         let {x : sX, y : sY, width : sWidth, height : sHeight} = src;
         let {x : dX, y : dY, width : dWidth, height : dHeight} = dest;
-        let page = this.thumbsStrip.pageForFrame(frameNumber);
-
-        this.props.getImage(videoId, page).then(img => {
-            //do not draw if the canvas should draw new state
-            if (this.canvas && drawCount == this.drawCount) {
-                const ctx = this.canvas.getContext('2d');
-                ctx.drawImage(img, sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight);
-            }
-        });
-    }
+        ctx.fillStyle = MatchTypeColors[matchType];
+        ctx.fillRect(sX, sY, sWidth, sHeight);
+        ctx.fillRect(dX, dY, dWidth, dHeight);
+    };
 
     onZoom = (e: ChangeEvent<HTMLInputElement>) => {
         let zoom = +e.target.value;
