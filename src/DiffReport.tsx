@@ -71,8 +71,9 @@ class DiffReport extends React.Component<Props, State> {
                     <Row>
                         <Col>
                             <h1>
-                                COMPARE REPORT
+                                BIGFOOT COMPARE REPORT
                             </h1>
+                            <img src="vglogo.png" height="100px"/>
                             <div>
                                 Combined results
                             </div>
