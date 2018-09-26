@@ -96,6 +96,7 @@ if (!fs.existsSync(reportDir)) {
 if (process.env.NODE_ENV == 'production') {
     fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `${process.env.REPORTS_PATH}/${projectId}/project.bundle.js`);
     fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `${process.env.REPORTS_PATH}/${projectId}/project.css`);
+    fs.copyFileSync(`${process.env.BUNDLE_PATH}/vglogo.png`, `${process.env.REPORTS_PATH}/${projectId}/vglogo.png`);
 
 //    mkdir -p reports/salt_color_trim3k/salt_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/ "$_"
 //    mkdir -p reports/salt_color_trim3k/salt_dc_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/ "$_"
