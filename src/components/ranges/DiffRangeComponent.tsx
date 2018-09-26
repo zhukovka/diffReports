@@ -50,7 +50,12 @@ function matchTypeDescription (range: DiffRange): string {
 
 const NAME = "DiffRangeComponent";
 const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getImage, className, layout, onClick, cols}: Props) => {
-    const {r1, r2, matchType} = range;
+    let {r1, r2, matchType, movedTo} = range;
+    if (matchType == MatchType.MOVED_FROM) {
+        r2 = movedTo;
+    } else if (matchType == MatchType.MOVED_TO) {
+        r1 = movedTo;
+    }
     const {frameWidth, frameHeight} = thumbsStrip;
     let dCols = cols || 10;
     let _el: HTMLElement;

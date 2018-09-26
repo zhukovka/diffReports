@@ -1,6 +1,6 @@
 import * as React from "react";
 import ThumbsStrip, {FrameStrip, Strip} from "../../model/ThumbsStrip";
-import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
+import {DiffRange, MatchType, MatchTypeColors} from "../../model/DiffRange";
 import Row from "../layout/Row";
 
 interface Props {
@@ -42,7 +42,12 @@ class DiffRangeBoard extends React.Component<Props, State> {
 
     private setRangeMaps (props: Props) {
         const {range, thumbsStrip, cols} = props;
-        const {r1, r2} = range;
+        let {r1, r2, matchType, movedTo} = range;
+        if (matchType == MatchType.MOVED_FROM) {
+            r2 = movedTo;
+        } else if (matchType == MatchType.MOVED_TO) {
+            r1 = movedTo;
+        }
         let col = (cols || thumbsStrip.cols);
         let totalRows = Math.ceil(Math.max(r1.length, r2.length) / col);
         this.totalBoards = totalRows / MAX_ROWS;
