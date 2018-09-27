@@ -114,28 +114,21 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
                     <Col col={1}>
                         {!!r2.length && <RangeComponent range={r2}/>}
                     </Col>
-                    <Col>
-                        <div>
-                            Match type: <b>{matchType}</b>
-                        </div>
-                    </Col>
                 </Row>
                 <Col col={3}>
-                    <Row justify={"center"} className={"matchType__description"}>
+                    <p className={"matchType__description center"}>
                         {matchTypeDescription(range)}
-                    </Row>
+                    </p>
                 </Col>
-                <Col>
-                    <Row direction={"col"}>
-                        {layout == LayoutMode.DETAILED &&
-                        <textarea name="notes" id="" cols={30} rows={10}
-                                  placeholder="User defined description / Notes:"/>
-                        }
-                        <button onClick={() => onClick(_el)} className={`${NAME}__details button`}>
-                            {layout == LayoutMode.DETAILED ? "HIDE DETAILS" : "DETAILS"}
-                        </button>
-                    </Row>
-                </Col>
+                <Row direction={"col"}>
+                    {layout == LayoutMode.DETAILED &&
+                    <textarea name="notes" id="" cols={30} rows={10}
+                              placeholder="User defined description / Notes:"/>
+                    }
+                    <button onClick={() => onClick(_el)} className={`${NAME}__details button`}>
+                        {layout == LayoutMode.DETAILED ? "HIDE DETAILS" : "DETAILS"}
+                    </button>
+                </Row>
             </Row>
             {layout == LayoutMode.DETAILED &&
             <Row>

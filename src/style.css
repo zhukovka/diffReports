@@ -49,6 +49,10 @@ body {
     -webkit-appearance: none;
 }
 
+.center {
+    text-align: center;
+}
+
 .DiffReport {
     display: flex;
     flex-direction: column;
