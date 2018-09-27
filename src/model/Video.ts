@@ -1,4 +1,6 @@
-export interface Video {
+import TapeTimecode from "./TapeTimecode";
+
+export interface IVideo {
     id: string;
 
     // original filename e.g. dnw_424242.mov
@@ -40,4 +42,30 @@ export interface Video {
 
     reel: string;
     clipName: string;
+}
+
+class Video implements IVideo {
+    chunksTotal: number;
+    chunksUploaded: number;
+    clipName: string;
+    filename: string;
+    frameDuration: number;
+    framesTotal: number;
+    height: number;
+    id: string;
+    isDropFrame: boolean;
+    isIndexed: boolean;
+    needsFPSChange: boolean;
+    reel: string;
+    startTimecode: number;
+    timecodeRate: number;
+    timescale: number;
+    uiVideoUrl: string;
+    uploadedChunks: number[];
+    width: number;
+
+    public getTimecode () {
+        return new TapeTimecode(this.isDropFrame, this.startTimecode, this.timecodeRate);
+    }
+
 }

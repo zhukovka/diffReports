@@ -82,7 +82,7 @@
 }
 
 /* Distributed alignment */
-.justify-between {
+.justify-space-between {
 
     justify-content: space-between;
     /* Distribute items evenly
@@ -90,7 +90,7 @@
                                       the last is flush with the end */
 }
 
-.justify-around {
+.justify-space-around {
 
     justify-content: space-around;
     /* Distribute items evenly
@@ -98,7 +98,7 @@
                                      on either end */
 }
 
-.justify-evenly {
+.justify-space-evenly {
 
     justify-content: space-evenly;
     /* Distribute items evenly
