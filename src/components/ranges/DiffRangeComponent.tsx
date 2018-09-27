@@ -3,7 +3,7 @@ import {DiffRange, MatchType} from "../../model/DiffRange";
 import {IRange} from "../../model/Range";
 import Row from "../layout/Row";
 import * as React from "react";
-import {Video} from "../../model/Video";
+import {IVideo} from "../../model/Video";
 import ThumbsStripComponent from "../video/ThumbsStripComponent";
 import ThumbsStrip, {FrameStrip, Strip} from "../../model/ThumbsStrip";
 import {RangeComponent} from "./RangeComponent";
@@ -13,11 +13,13 @@ import {classNameFrom} from "../../utils/CSSUtils";
 import Placeholder from "../layout/Placeholder";
 import {LayoutMode} from "../../common/LayoutMode";
 import DiffRangeBoard from "./DiffRangeBoard";
+import TapeTimecode from "../../model/TapeTimecode";
+import {TimecodeDiffRange} from "../../model/TimecodeRange";
 
 interface Props extends ReactElementProps {
     range: DiffRange;
-    sourceVideo: Video;
-    comparedVideo: Video;
+    sourceVideo: IVideo;
+    comparedVideo: IVideo;
     thumbsStrip: ThumbsStrip;
 
     getImage (videoId: string, page: number): Promise<HTMLImageElement>
@@ -59,6 +61,9 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
     const {frameWidth, frameHeight} = thumbsStrip;
     let dCols = cols || 10;
     let _el: HTMLElement;
+    let tc1 = new TapeTimecode(sourceVideo.isDropFrame, sourceVideo.startTimecode, sourceVideo.timecodeRate);
+    let tc2 = new TapeTimecode(comparedVideo.isDropFrame, comparedVideo.startTimecode, comparedVideo.timecodeRate);
+    let tcRange: TimecodeDiffRange = TimecodeDiffRange.toTimecode(range, tc1, tc2);
     let getThumbsStripComponent = function (range: IRange, length: number, rangeNumber: number) {
         let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(range.frame, length, dCols);
         let width = frameWidth * Math.min(length, dCols);
@@ -95,15 +100,23 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
                         <div>
                             File 1
                         </div>
-                        <RangeComponent range={r1}/>
+                        {!!tcRange.r1 && <b>{tcRange.r1.start} - {tcRange.r1.end}</b>}
                     </Col>
                     <Col col={1}>
                         <div>File 2</div>
-                        <RangeComponent range={r2}/>
+                        {!!tcRange.r2 && <b>{tcRange.r2.start} - {tcRange.r2.end}</b>}
+                    </Col>
+                </Row>
+                <Row direction={"col"} alignSelf={"stretch"}>
+                    <Col col={1}>
+                        {!!r1.length && <RangeComponent range={r1}/>}
+                    </Col>
+                    <Col col={1}>
+                        {!!r2.length && <RangeComponent range={r2}/>}
                     </Col>
                     <Col>
                         <div>
-                            Match type: {matchType}
+                            Match type: <b>{matchType}</b>
                         </div>
                     </Col>
                 </Row>

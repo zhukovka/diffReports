@@ -1,7 +1,7 @@
 import * as React from "react";
 import {DiffRange, MatchType} from "./model/DiffRange";
 import DiffRangeComponent from "./components/ranges/DiffRangeComponent";
-import {Video} from "./model/Video";
+import {IVideo} from "./model/Video";
 import Row from "./components/layout/Row";
 import ThumbsStrip from "./model/ThumbsStrip";
 import Col from "./components/layout/Col";
@@ -13,8 +13,8 @@ import DiffTimeline from "./components/ranges/DiffTimeline";
 
 interface Props {
     ranges: DiffRange[];
-    sourceVideo: Video;
-    comparedVideo: Video;
+    sourceVideo: IVideo;
+    comparedVideo: IVideo;
 
     getImage (videoId: string, page: number): Promise<HTMLImageElement>
 }

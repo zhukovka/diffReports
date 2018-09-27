@@ -22,6 +22,6 @@ export enum MatchTypeColors {
 export interface DiffRange {
     r1: IRange;
     r2: IRange;
-    movedTo: IRange;
+    movedTo?: IRange;
     matchType: MatchType;
 }

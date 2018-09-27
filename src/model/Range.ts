@@ -1,3 +1,6 @@
+import {TimecodeRange} from "./TimecodeRange";
+import TapeTimecode from "./TapeTimecode";
+
 export interface IRange {
     frame: number;
     length: number;
@@ -20,6 +23,15 @@ export class Range implements IRange {
     //     return !this.isEmpty() && !r.isEmpty() && (this.containsFrame(r.frame) || r.containsFrame(this.frame));
     // }
 
+}
+
+export function getTimecodeRange (range: IRange, timecode: TapeTimecode): TimecodeRange {
+    if (range.length) {
+        let startFrame = range.frame;
+        let endFrame = range.frame + range.length - 1;
+        return {start : timecode.getTimecodeAtFrame(startFrame), end : timecode.getTimecodeAtFrame(endFrame)};
+    }
+    return null;
 }
 
 export function containsFrame (range: IRange, frameNumber: number): boolean {

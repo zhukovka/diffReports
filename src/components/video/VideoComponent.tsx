@@ -1,12 +1,12 @@
 import * as React from "react";
 import {ReactElementProps} from "../../common/react-interfaces";
 import {classNameFrom} from "../../utils/CSSUtils";
-import {Video} from "../../model/Video";
+import {IVideo} from "../../model/Video";
 import {formatTime} from "../../utils/TimeUtils";
 import "./video.css";
 
 interface VideoProps extends ReactElementProps {
-    video: Video;
+    video: IVideo;
 }
 
 const VideoComponent = ({className, video}: VideoProps) => {
