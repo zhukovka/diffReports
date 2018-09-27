@@ -10,8 +10,8 @@ export const RangeComponent = ({range}: Props) => {
 
     return (
         <ul className={"range"}>
-            <li>frame: {range.frame}</li>
-            <li>length: {range.length}</li>
+            <li>start frame: {range.frame}</li>
+            <li>frames: {range.length}</li>
         </ul>
     )
 };

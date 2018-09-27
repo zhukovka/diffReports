@@ -2,7 +2,7 @@ import * as React from "react";
 import {ChangeEvent, MouseEvent, WheelEvent} from "react";
 import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
 import ThumbsStrip, {Coordinates} from "../../model/ThumbsStrip";
-import {Video} from "../../model/Video";
+import {IVideo} from "../../model/Video";
 import {IRange} from "../../model/Range";
 
 const NAME = "DiffTimeline";
@@ -12,8 +12,8 @@ const COLS = 10;
 
 interface Props {
     ranges: DiffRange[];
-    sourceVideo: Video;
-    comparedVideo: Video;
+    sourceVideo: IVideo;
+    comparedVideo: IVideo;
     selectedRange?: DiffRange;
 
     getImage (videoId: string, page: number): Promise<HTMLImageElement>

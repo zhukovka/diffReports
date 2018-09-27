@@ -2,13 +2,13 @@ import * as ReactDOM from "react-dom";
 import * as React from "react";
 import DiffReport from "./DiffReport";
 import {DiffRange} from "./model/DiffRange";
-import {Video} from "./model/Video";
+import {IVideo} from "./model/Video";
 import DiffReportsApi from "./model/DiffReportsApi";
 
 interface Props {
     ranges: DiffRange[],
-    sourceVideo: Video,
-    comparedVideo: Video,
+    sourceVideo: IVideo,
+    comparedVideo: IVideo,
     projectId: string
 }
 
@@ -18,7 +18,7 @@ export const App = ({ranges, sourceVideo, comparedVideo, projectId}: Props) => {
                         getImage={api.getImage.bind(api)}/>);
 };
 
-function diffReport (ranges: DiffRange[], sourceVideo: Video, comparedVideo: Video, projectId: string) {
+function diffReport (ranges: DiffRange[], sourceVideo: IVideo, comparedVideo: IVideo, projectId: string) {
     const app = document.getElementById("app");
     ReactDOM.hydrate(<App projectId={projectId} comparedVideo={comparedVideo} ranges={ranges}
                           sourceVideo={sourceVideo}/>, app);

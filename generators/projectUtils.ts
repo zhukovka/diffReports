@@ -1,7 +1,7 @@
 import {DiffRange} from "../src/model/DiffRange";
 import * as fs from "fs";
 import {Project} from "../src/model/Project";
-import {Video} from "../src/model/Video";
+import {IVideo} from "../src/model/Video";
 
 export function readRangesJson (sourceId: string, comparedMov: string): DiffRange[] {
     const regex = new RegExp(`^ranges_${comparedMov}.*\\.js$`);
@@ -16,7 +16,7 @@ export function readProjectJson (projectId: string): Project {
     const project = fs.readFileSync(`${process.env.MRESTORE_PROJECTS}/${projectId}/project.js`, 'utf8');
     return JSON.parse(project);
 }
-export function readVideoJson (mov: string): Video {
+export function readVideoJson (mov: string): IVideo {
     const videoJs = fs.readFileSync(`${process.env.PROJECT_STORAGE}/${mov}/video.js`, 'utf8');
     return JSON.parse(videoJs);
 }
