@@ -22,12 +22,13 @@ interface Props {
 interface State {
     types: { [type: string]: boolean };
     range: DiffRange;
-
+    shortEvents: boolean;
 }
 
 const COLS = 10;
 const FRAME_WIDTH = 120;
 const FRAME_HEIGHT = 68;
+const SHORT_EVENT_FRAMES = 4;
 
 class DiffReport extends React.Component<Props, State> {
     static displayName = "DiffReport";
@@ -42,6 +43,7 @@ class DiffReport extends React.Component<Props, State> {
         this.state = {
             range : null,
             types : Object.assign({}, MatchType as any),
+            shortEvents : false
         };
     }
 
@@ -144,15 +146,21 @@ class DiffReport extends React.Component<Props, State> {
         });
     };
 
+    rangesFilter = (r: DiffRange) => {
+        const {types, shortEvents} = this.state;
+        const {r1, r2} = r;
+        let short = shortEvents || !(r1.length > SHORT_EVENT_FRAMES || r2.length > SHORT_EVENT_FRAMES);
+        return short == false && !!types[r.matchType]
+    };
+
     private renderRanges () {
-        const {types} = this.state;
         if (!this.rangesContainer) {
             return null;
         }
 
         const {ranges, comparedVideo, sourceVideo, getImage} = this.props;
         const cols = this.rangesContainer.clientWidth / this.thumbsStrip.frameWidth | 0;
-        return ranges.filter(r => !!types[r.matchType]).map((range, i) => {
+        return ranges.filter(this.rangesFilter).map((range, i) => {
             let props = {
                 range, comparedVideo, sourceVideo,
                 cols,
