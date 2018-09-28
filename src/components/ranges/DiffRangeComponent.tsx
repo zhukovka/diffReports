@@ -31,15 +31,15 @@ interface Props extends ReactElementProps {
 }
 
 function matchTypeDescription (range: DiffRange): string {
-    const {r1, r2, matchType} = range;
+    const {r1, r2, matchType, movedTo} = range;
     //{r1.length} frames in File 1 were {range.matchType} with {r2.length} frames in File 2
     switch (matchType) {
         case MatchType.REMOVED:
             return `${r1.length} frames from File 1 were ${matchType} (do not exist) in File 2`;
         case MatchType.MOVED_TO:
-            return `${r2.length} frames from File 2 starting from frame ${r2.frame} were ${matchType} File 1 starting from frame ${r1.frame}`;
+            return `${r2.length} frames from File 2 starting from frame ${r2.frame} were ${matchType} File 1 starting from frame ${movedTo.frame}`;
         case MatchType.MOVED_FROM:
-            return `${r1.length} frames from File 1 starting from frame ${r1.frame} were ${matchType} File 2 starting from frame ${r2.frame}`;
+            return `${r1.length} frames from File 1 starting from frame ${r1.frame} were ${matchType} File 2 starting from frame ${movedTo.frame}`;
         case MatchType.MATCH:
             return `${r1.length} frames from File 1 starting from frame ${r1.frame} ${matchType} to ${r2.length} frames from File 2 starting from frame ${r2.frame}`;
         case MatchType.CHANGED:
