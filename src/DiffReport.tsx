@@ -169,7 +169,9 @@ class DiffReport extends React.Component<Props, State> {
                 layout : this.state.range == range ? LayoutMode.DETAILED : LayoutMode.BASIC,
                 onClick : (el: HTMLElement) => this.onRangeClick(el, range)
             };
-            return (<DiffRangeComponent key={i} {...props} className={`${DiffReport.displayName}__diffrange`}/>);
+            let k = btoa(JSON.stringify(range));
+            return (<DiffRangeComponent key={`${k}`} {...props}
+                                        className={`${DiffReport.displayName}__diffrange`}/>);
         });
     }
 
