@@ -23,12 +23,12 @@ interface State {
     types: { [type: string]: boolean };
     range: DiffRange;
     shortEvents: boolean;
+    minFrames: number;
 }
 
 const COLS = 10;
 const FRAME_WIDTH = 120;
 const FRAME_HEIGHT = 68;
-const SHORT_EVENT_FRAMES = 4;
 
 class DiffReport extends React.Component<Props, State> {
     static displayName = "DiffReport";
@@ -43,7 +43,8 @@ class DiffReport extends React.Component<Props, State> {
         this.state = {
             range : null,
             types : Object.assign({}, MatchType as any),
-            shortEvents : false
+            shortEvents : false,
+            minFrames : 4
         };
     }
 
@@ -55,7 +56,7 @@ class DiffReport extends React.Component<Props, State> {
 
     render () {
         const {ranges, comparedVideo, sourceVideo, getImage} = this.props;
-        const {types, range, shortEvents} = this.state;
+        const {types, range, shortEvents, minFrames} = this.state;
         const eventsCount = ranges.reduce((counts: any, range) => {
             if (!counts[range.matchType]) {
                 counts[range.matchType] = 0;
@@ -121,10 +122,12 @@ class DiffReport extends React.Component<Props, State> {
                             </Row>
                             <p>
                                 <input type="checkbox" id="short" value="short"
-                                       checked={shortEvents}
+                                       checked={!shortEvents}
                                        onChange={e => this.setState({shortEvents : !shortEvents})}/>
                                 <label htmlFor="short">
-                                    Include short events
+                                    Filter short events of <input type="number" value={minFrames} min={0}
+                                                                  onChange={e => this.setState({minFrames : +e.target.value | 0})}
+                                                                  style={{width : "6ch"}}/> frames
                                 </label>
                             </p>
                         </Col>
@@ -155,10 +158,10 @@ class DiffReport extends React.Component<Props, State> {
     };
 
     rangesFilter = (r: DiffRange) => {
-        const {types, shortEvents} = this.state;
+        const {types, shortEvents, minFrames} = this.state;
         const {r1, r2} = r;
         if (!shortEvents) {
-            return (r1.length > SHORT_EVENT_FRAMES || r2.length > SHORT_EVENT_FRAMES) && !!types[r.matchType];
+            return (r1.length > minFrames || r2.length > minFrames) && !!types[r.matchType];
         }
         return !!types[r.matchType]
     };
