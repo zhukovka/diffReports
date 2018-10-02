@@ -1,11 +1,7 @@
 import {ReactElementProps} from "../../common/react-interfaces";
-import {DiffRange, MatchType} from "../../model/DiffRange";
-import {IRange} from "../../model/Range";
 import Row from "../layout/Row";
 import * as React from "react";
-import {IVideo} from "../../model/Video";
 import ThumbsStripComponent from "../video/ThumbsStripComponent";
-import ThumbsStrip, {FrameStrip, Strip} from "../../model/ThumbsStrip";
 import {RangeComponent} from "./RangeComponent";
 import Col from "../layout/Col";
 import "./range.css";
@@ -13,8 +9,12 @@ import {classNameFrom} from "../../utils/CSSUtils";
 import Placeholder from "../layout/Placeholder";
 import {LayoutMode} from "../../common/LayoutMode";
 import DiffRangeBoard from "./DiffRangeBoard";
-import TapeTimecode from "../../model/TapeTimecode";
-import {TimecodeDiffRange} from "../../model/TimecodeRange";
+import {DiffRange, MatchType} from "bigfootjs/dist/DiffRange";
+import {IVideo} from "bigfootjs/dist/Video";
+import ThumbsStrip, {FrameStrip, Strip} from "bigfootjs/dist/ThumbsStrip";
+import TapeTimecode from "bigfootjs/dist/TapeTimecode";
+import {TimecodeDiffRange} from "bigfootjs/dist/TimecodeRange";
+import {IRange} from "bigfootjs/dist/Range";
 
 interface Props extends ReactElementProps {
     range: DiffRange;

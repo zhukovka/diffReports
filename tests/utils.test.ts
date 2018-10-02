@@ -1,7 +1,7 @@
 // \d{2}$
 import 'mocha';
 import {expect} from 'chai';
-import {MatchType} from "../src/model/DiffRange";
+import {MatchType} from "bigfootjs/dist/DiffRange";
 
 let ranges = [
     {"r1" : {"frame" : 0, "length" : 0}, "r2" : {"frame" : 0, "length" : 2181}, "matchType" : MatchType.ADDED},

@@ -1,6 +1,6 @@
-import {FrameStrip, Strip} from "../../model/ThumbsStrip";
 import * as React from "react";
 import "./video.css";
+import {FrameStrip, Strip} from "bigfootjs/dist/ThumbsStrip";
 
 interface Props {
     strips: Map<FrameStrip, Strip>[],

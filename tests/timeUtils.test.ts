@@ -1,9 +1,9 @@
 import 'mocha';
 import {expect} from 'chai';
 import {formatTime} from "../src/utils/TimeUtils";
-import {TimecodeDiffRange} from "../src/model/TimecodeRange";
-import TapeTimecode from "../src/model/TapeTimecode";
-import {MatchType} from "../src/model/DiffRange";
+import TapeTimecode from "bigfootjs/dist/TapeTimecode";
+import {TimecodeDiffRange} from "bigfootjs/dist/TimecodeRange";
+import {MatchType} from "bigfootjs/dist/DiffRange";
 
 describe('Thumbs calculating function', () => {
     it('should return format 60 seconds to 00:01:00', () => {
@@ -96,7 +96,7 @@ describe('TapeTimecode tests', () => {
         };
         let tc1 = new TapeTimecode(video1.isDropFrame, video1.startTimecode, video1.timecodeRate);
         let tc2 = new TapeTimecode(video2.isDropFrame, video2.startTimecode, video2.timecodeRate);
-        let tcRange: TimecodeDiffRange = TimecodeDiffRange.toTimecode(range, tc1, tc2);
+        let tcRange: TimecodeDiffRange = TimecodeDiffRange.toTimecode(range as any, tc1, tc2);
         console.log(tcRange.r1);
         console.log(tcRange.r2);
         expect(tcRange.r1.start).to.equal('00:00:00.00');

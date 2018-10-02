@@ -1,7 +1,7 @@
-import {DiffRange} from "../src/model/DiffRange";
 import * as fs from "fs";
-import {Project} from "../src/model/Project";
-import {IVideo} from "../src/model/Video";
+import {DiffRange} from "bigfootjs/dist/DiffRange";
+import {Project} from "bigfootjs/dist/Project";
+import {IVideo} from "bigfootjs/dist/Video";
 
 export function readRangesJson (sourceId: string, comparedMov: string): DiffRange[] {
     const regex = new RegExp(`^ranges_${comparedMov}.*\\.js$`);

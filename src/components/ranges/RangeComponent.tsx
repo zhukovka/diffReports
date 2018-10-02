@@ -1,6 +1,6 @@
-import {IRange} from "../../model/Range";
 import * as React from "react";
 import "./range.css";
+import {IRange} from "bigfootjs/dist/Range";
 
 interface Props {
     range: IRange

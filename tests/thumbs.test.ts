@@ -1,8 +1,8 @@
 import 'mocha';
 import {expect} from 'chai';
-import ThumbsStrip from "../src/model/ThumbsStrip";
-import {DiffRange} from "../src/model/DiffRange";
-import {containsFrame, IRange} from "../src/model/Range";
+import ThumbsStrip from "bigfootjs/dist/ThumbsStrip";
+import {DiffRange} from "bigfootjs/dist/DiffRange";
+import {IRange} from "bigfootjs/dist/Range";
 
 const cols = 10;
 const rows = 24;
@@ -180,7 +180,7 @@ describe('frames to canvas', function () {
 });
 
 describe('timeline test', function () {
-    let timelineMap: Map<DiffRange, IRange> = thumbs.diffRangesToTimeline(ranges as any);
+    let timelineMap: Map<DiffRange, IRange> = thumbs.diffRangesTimeline(ranges as any);
     it('should return map diffrange - range', function () {
 
         let expected = [

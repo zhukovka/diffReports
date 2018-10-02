@@ -1,16 +1,15 @@
 import * as React from "react";
-import {DiffRange, MatchType} from "./model/DiffRange";
 import DiffRangeComponent from "./components/ranges/DiffRangeComponent";
-import {IVideo} from "./model/Video";
 import Row from "./components/layout/Row";
-import ThumbsStrip from "./model/ThumbsStrip";
 import Col from "./components/layout/Col";
 import "./style.css";
 import List from "./components/layout/List";
 import VideoComponent from "./components/video/VideoComponent";
 import {LayoutMode} from "./common/LayoutMode";
 import DiffTimeline from "./components/ranges/DiffTimeline";
-
+import {DiffRange, MatchType} from "bigfootjs/dist/DiffRange";
+import {IVideo} from "bigfootjs/dist/Video";
+import ThumbsStrip from "bigfootjs/dist/ThumbsStrip";
 interface Props {
     ranges: DiffRange[];
     sourceVideo: IVideo;

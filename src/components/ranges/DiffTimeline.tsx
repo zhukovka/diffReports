@@ -1,9 +1,9 @@
 import * as React from "react";
 import {ChangeEvent, MouseEvent, WheelEvent} from "react";
-import {DiffRange, MatchTypeColors} from "../../model/DiffRange";
-import ThumbsStrip, {Coordinates} from "../../model/ThumbsStrip";
-import {IVideo} from "../../model/Video";
-import {IRange} from "../../model/Range";
+import {DiffRange, MatchTypeColors} from "bigfootjs/dist/DiffRange";
+import {IVideo} from "bigfootjs/dist/Video";
+import ThumbsStrip, {Coordinates} from "bigfootjs/dist/ThumbsStrip";
+import {IRange} from "bigfootjs/dist/Range";
 
 const NAME = "DiffTimeline";
 const FRAME_WIDTH = 120;
@@ -50,7 +50,7 @@ class DiffTimeline extends React.Component<Props, State> {
                 let {r1, r2} = range;
                 return acc + Math.max(r1.length, r2.length);
             }, 0);
-            this.timelineMap = this.thumbsStrip.diffRangesToTimeline(ranges);
+            this.timelineMap = this.thumbsStrip.diffRangesTimeline(ranges);
             this.drawCount = 0;
         }
         this.state = {
