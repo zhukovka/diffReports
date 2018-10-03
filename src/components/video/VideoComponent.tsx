@@ -9,14 +9,17 @@ interface VideoProps extends ReactElementProps {
     video: IVideo;
 }
 
+const NAME = `VideoComponent`;
 const VideoComponent = ({className, video}: VideoProps) => {
-    let _className = `VideoComponent ${classNameFrom(className)}`;
+    const _class = classNameFrom(className);
     return (
-        <div className={_className}>
-            <h3>
-                {video.id}
-            </h3>
-            <p>Duration: {formatTime((video.framesTotal / video.timecodeRate) | 0)}</p>
+        <div className={_class}>
+            <div className={`${NAME} ${_class}-id`}>
+                {video.filename}
+            </div>
+            <div className={`${NAME} ${_class}-duration`}>
+                {formatTime((video.framesTotal / video.timecodeRate) | 0)}
+            </div>
         </div>
     );
 };

@@ -3,6 +3,7 @@ import DiffRangeComponent from "./components/ranges/DiffRangeComponent";
 import Row from "./components/layout/Row";
 import Col from "./components/layout/Col";
 import "./style.css";
+import "./DiffReport.css";
 import List from "./components/layout/List";
 import VideoComponent from "./components/video/VideoComponent";
 import {LayoutMode, ViewMode} from "./common/LayoutMode";
@@ -10,12 +11,15 @@ import DiffTimeline from "./components/ranges/DiffTimeline";
 import {DiffRange, MatchType} from "bigfootjs/dist/DiffRange";
 import {IVideo} from "bigfootjs/dist/Video";
 import ThumbsStrip from "bigfootjs/dist/ThumbsStrip";
+import TapeTimecode from "bigfootjs/dist/TapeTimecode";
+import {formatTime} from "./utils/TimeUtils";
 
 interface Props {
     ranges: DiffRange[];
     sourceVideo: IVideo;
     comparedVideo: IVideo;
     eventTypes: string[];
+
     getImage (videoId: string, page: number): Promise<HTMLImageElement>
 }
 
@@ -29,9 +33,10 @@ interface State {
 const COLS = 10;
 const FRAME_WIDTH = 120;
 const FRAME_HEIGHT = 68;
+const NAME = "DiffReport";
 
 class DiffReport extends React.Component<Props, State> {
-    static displayName = "DiffReport";
+    static displayName = NAME;
     private readonly thumbsStrip: ThumbsStrip;
     private rangesContainer: HTMLDivElement;
     private eventsCount: any;
@@ -83,25 +88,6 @@ class DiffReport extends React.Component<Props, State> {
                                 Combined results
                             </div>
                         </Col>
-                        <Col col={1}>
-                            <Row gap={"10px"}>
-                                <Col col={1} className={"text-end"}>
-                                    <p>
-                                        File 1
-                                    </p>
-                                    <VideoComponent video={sourceVideo}/>
-                                </Col>
-                                <Col>
-                                    <p>
-                                        COMPARED TO
-                                    </p>
-                                </Col>
-                                <Col col={1}>
-                                    <p>File 2</p>
-                                    <VideoComponent video={comparedVideo}/>
-                                </Col>
-                            </Row>
-                        </Col>
                         <Col>
                             <Row>
                                 <div>
@@ -134,7 +120,7 @@ class DiffReport extends React.Component<Props, State> {
                             </p>
                         </Col>
                     </Row>
-
+                    {this.renderReportHeader()}
                     {this.renderRanges()}
                 </div>
             </div>)
@@ -197,6 +183,15 @@ class DiffReport extends React.Component<Props, State> {
         const excludedTypes = Object.assign({}, this.state.excludedTypes);
         excludedTypes[type] = !this.state.excludedTypes[type];
         this.setState({excludedTypes});
+    }
+
+    private renderReportHeader () {
+        const {comparedVideo, sourceVideo} = this.props;
+        const className = `${NAME}__report-header`;
+        return <div className={className}>
+            <VideoComponent video={sourceVideo} className={`${NAME}__video-source`}/>
+            <VideoComponent video={comparedVideo} className={`${NAME}__video-compared`}/>
+        </div>
     }
 }
 

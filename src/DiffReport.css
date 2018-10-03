@@ -1,0 +1,51 @@
+.DiffReport {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    border-bottom: 1px solid lightslategrey;
+}
+
+.DiffReport__header {
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
+    /*position: fixed;*/
+    /*z-index: 999;*/
+    width: 100%;
+    background: whitesmoke;
+}
+
+.DiffReport__ranges {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+}
+
+.DiffReport__report-header {
+    display: flex;
+}
+
+.DiffReport__video-source {
+    --template-areas: "id0 duration0";
+    --template-columns: 1fr auto;
+}
+
+.DiffReport__video-compared {
+    --template-areas: "duration0 id0";
+    --template-columns: auto 1fr;
+}
+
+.DiffReport__video-source, .DiffReport__video-compared {
+    flex: 1;
+    display: grid;
+    column-gap: 0.5rem;
+    grid-template-columns: var(--template-columns);
+    grid-template-areas: var(--template-areas);
+}
+
+.DiffReport__video-source-id, .DiffReport__video-compared-id {
+    grid-area: id0;
+}
+
+.DiffReport__video-source-duration, .DiffReport__video-compared-duration {
+    grid-area: duration0;
+}
