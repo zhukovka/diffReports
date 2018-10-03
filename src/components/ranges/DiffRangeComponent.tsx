@@ -5,9 +5,10 @@ import ThumbsStripComponent from "../video/ThumbsStripComponent";
 import {RangeComponent} from "./RangeComponent";
 import Col from "../layout/Col";
 import "./range.css";
+import "./DiffRangeComponent.css";
 import {classNameFrom} from "../../utils/CSSUtils";
 import Placeholder from "../layout/Placeholder";
-import {LayoutMode} from "../../common/LayoutMode";
+import {LayoutMode, ViewMode} from "../../common/LayoutMode";
 import DiffRangeBoard from "./DiffRangeBoard";
 import {DiffRange, MatchType} from "bigfootjs/dist/DiffRange";
 import {IVideo} from "bigfootjs/dist/Video";
@@ -15,6 +16,7 @@ import ThumbsStrip, {FrameStrip, Strip} from "bigfootjs/dist/ThumbsStrip";
 import TapeTimecode from "bigfootjs/dist/TapeTimecode";
 import {TimecodeDiffRange} from "bigfootjs/dist/TimecodeRange";
 import {IRange} from "bigfootjs/dist/Range";
+import {TimecodeRange} from "bigfootjs/src/TimecodeRange";
 
 interface Props extends ReactElementProps {
     range: DiffRange;
@@ -25,6 +27,7 @@ interface Props extends ReactElementProps {
     getImage (videoId: string, page: number): Promise<HTMLImageElement>
 
     layout: LayoutMode;
+    view: ViewMode;
     cols?: number;
 
     onClick? (componentElement: HTMLElement): void;
@@ -51,7 +54,7 @@ function matchTypeDescription (range: DiffRange): string {
 }
 
 const NAME = "DiffRangeComponent";
-const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getImage, className, layout, onClick, cols}: Props) => {
+const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, getImage, className, layout, onClick, cols, view}: Props) => {
     let {r1, r2, matchType, movedTo} = range;
     if (matchType == MatchType.MOVED_FROM) {
         r2 = movedTo;
@@ -84,59 +87,40 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
         return <DiffRangeBoard getImage={_getImage} range={range} thumbsStrip={thumbsStrip} cols={dCols}/>
     }
 
-    return (
-        <div className={`${NAME} ${classNameFrom(className)}`} ref={el => _el = el}>
-            <Row align={"center"}>
-                <Col className={`matchType-${matchType.toLowerCase()}`}>
-                    {r1.length ? getThumbsStripComponent(r1, 1, 0)
-                        : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
-                    }
-                    {r2.length ? getThumbsStripComponent(r2, 1, 1)
-                        : <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
-                    }
-                </Col>
-                <Row direction={"col"} alignSelf={"stretch"}>
-                    <Col col={1}>
-                        <div>
-                            File 1
-                        </div>
-                        {!!tcRange.r1 && <b>{tcRange.r1.start} - {tcRange.r1.end}</b>}
-                    </Col>
-                    <Col col={1}>
-                        <div>File 2</div>
-                        {!!tcRange.r2 && <b>{tcRange.r2.start} - {tcRange.r2.end}</b>}
-                    </Col>
-                </Row>
-                <Row direction={"col"} alignSelf={"stretch"}>
-                    <Col col={1}>
-                        {!!r1.length && <RangeComponent range={r1}/>}
-                    </Col>
-                    <Col col={1}>
-                        {!!r2.length && <RangeComponent range={r2}/>}
-                    </Col>
-                </Row>
-                <Col col={3}>
-                    <p className={"matchType__description center"}>
-                        {matchTypeDescription(range)}
-                    </p>
-                </Col>
-                <Row direction={"col"}>
-                    {layout == LayoutMode.DETAILED &&
-                    <textarea name="notes" id="" cols={30} rows={10}
-                              placeholder="User defined description / Notes:"/>
-                    }
-                    <button onClick={() => onClick(_el)} className={`${NAME}__details button`}>
-                        {layout == LayoutMode.DETAILED ? "HIDE DETAILS" : "DETAILS"}
-                    </button>
-                </Row>
-            </Row>
-            {layout == LayoutMode.DETAILED &&
-            <Row>
-                {renderRangeFrames()}
-            </Row>
-            }
+    function renderRange (r: IRange, tcr: TimecodeRange, rangeNumber: number) {
+        return <div className={`${NAME}__range-${rangeNumber}`}>
+            <div className={`${NAME}__frame-start`}>
+                {r.frame}
+            </div>
+            <div className={`${NAME}__frame-end`}>
+                {r.frame + r.length}
+            </div>
+            <div className={`${NAME}__thumb`}>
+                {r.length ? getThumbsStripComponent(r, 1, rangeNumber)
+                    :
+                    <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
+                }
+            </div>
+            <div className={`${NAME}__match-type`}>
+                {matchType}
+            </div>
+            <div className={`${NAME}__description`}>
+
+            </div>
+            <div className={`${NAME}__timecode-start`}>
+                {!!tcr && <b>{tcr.start}</b>}
+            </div>
+            <div className={`${NAME}__timecode-end`}>
+                {!!tcr && <b>{tcr.end}</b>}
+            </div>
         </div>
-    )
+    }
+
+    return (<div className={`${NAME} layout-${LayoutMode[layout].toLowerCase()} ${classNameFrom(className)}`}
+                 ref={el => _el = el}>
+        {renderRange(r1, tcRange.r1, 0)}
+        {renderRange(r2, tcRange.r2, 1)}
+    </div>);
 };
 // @ts-ignore
 DiffRangeComponent.displayName = NAME;

@@ -35,11 +35,6 @@
     background: mediumseagreen;
 }
 
-.DiffRangeComponent {
-    border-bottom: 1px solid lightslategrey;
-    padding: 5px;
-}
-
 .DiffRangeBoard {
     --board-maxheight: 75vh;
     width: 100%;

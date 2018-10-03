@@ -1,0 +1,63 @@
+.DiffRangeComponent {
+    --template: "frame0 . . timecode0" ". range range thumb" "frame1 . . timecode1";
+    border-bottom: 1px solid lightslategrey;
+    /*padding: 5px;*/
+    display: flex;
+}
+
+.layout-split .DiffRangeComponent__range-0 {
+    --template: "frame0 . . timecode0" ". range range thumb" "frame1 . . timecode1";
+    /*border-right: 2px solid;*/
+}
+
+.layout-split .DiffRangeComponent__range-1 {
+    --template: "timecode0 . . frame0" "thumb range range ." "timecode1 . . frame1";
+}
+
+.DiffRangeComponent__range-0, .DiffRangeComponent__range-1 {
+    flex: 1;
+    display: grid;
+    column-gap: 0.5rem;
+    grid-template-columns: auto 1fr 1fr auto;
+    grid-template-areas: var(--template);
+}
+
+.DiffRangeComponent__range-1 .DiffRangeComponent__frame-start, .DiffRangeComponent__range-1 .DiffRangeComponent__frame-end {
+    text-align: right;
+}
+
+.DiffRangeComponent__frame-start {
+    grid-area: frame0;
+}
+
+.DiffRangeComponent__frame-end {
+    grid-area: frame1;
+}
+
+.DiffRangeComponent__frame-start, .DiffRangeComponent__frame-end {
+    color: darkgray;
+}
+
+.DiffRangeComponent__thumb {
+    grid-area: thumb;
+}
+
+.DiffRangeComponent__match-type {
+
+}
+
+.DiffRangeComponent__description {
+    grid-area: range;
+}
+
+.DiffRangeComponent__timecode-start, .DiffRangeComponent__timecode-end {
+    text-align: center;
+}
+
+.DiffRangeComponent__timecode-start {
+    grid-area: timecode0;
+}
+
+.DiffRangeComponent__timecode-end {
+    grid-area: timecode1;
+}

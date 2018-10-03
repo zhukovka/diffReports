@@ -1,3 +1,13 @@
+:root {
+    --matchType-added: darkcyan;
+    --matchType-removed: red;
+    --matchType-match: darkblue;
+    --matchType-changed: darkgreen;
+    --matchType-moved: orange;
+    --matchType-moved_from: fuchsia;
+    --matchType-moved_to: mediumseagreen;
+}
+
 html {
     font-family: "Helvetica Neue", sans-serif;
     font-size: 10px;

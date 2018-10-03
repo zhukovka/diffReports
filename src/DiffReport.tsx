@@ -5,11 +5,12 @@ import Col from "./components/layout/Col";
 import "./style.css";
 import List from "./components/layout/List";
 import VideoComponent from "./components/video/VideoComponent";
-import {LayoutMode} from "./common/LayoutMode";
+import {LayoutMode, ViewMode} from "./common/LayoutMode";
 import DiffTimeline from "./components/ranges/DiffTimeline";
 import {DiffRange, MatchType} from "bigfootjs/dist/DiffRange";
 import {IVideo} from "bigfootjs/dist/Video";
 import ThumbsStrip from "bigfootjs/dist/ThumbsStrip";
+
 interface Props {
     ranges: DiffRange[];
     sourceVideo: IVideo;
@@ -65,10 +66,10 @@ class DiffReport extends React.Component<Props, State> {
         }, {});
         return (
             <div className={DiffReport.displayName}>
-                <Row className={`${DiffReport.displayName}__header`} gap={"10px"}>
-                    <DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}
-                                  getImage={getImage} rangeSelected={this.rangeSelected} selectedRange={range}/>
-                </Row>
+                {/*<Row className={`${DiffReport.displayName}__header`} gap={"10px"}>*/}
+                    {/*<DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}*/}
+                                  {/*getImage={getImage} rangeSelected={this.rangeSelected} selectedRange={range}/>*/}
+                {/*</Row>*/}
                 <div className={`${DiffReport.displayName}__ranges container`} ref={el => this.rangesContainer = el}>
                     <Row>
                         <Col>
@@ -178,7 +179,8 @@ class DiffReport extends React.Component<Props, State> {
                 cols,
                 getImage,
                 thumbsStrip : this.thumbsStrip,
-                layout : this.state.range == range ? LayoutMode.DETAILED : LayoutMode.BASIC,
+                view : this.state.range == range ? ViewMode.DETAILED : ViewMode.BASIC,
+                layout : LayoutMode.SPLIT,
                 onClick : (el: HTMLElement) => this.onRangeClick(el, range)
             };
             let k = btoa(JSON.stringify(range));
