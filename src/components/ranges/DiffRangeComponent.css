@@ -1,9 +1,37 @@
 .DiffRangeComponent {
     --template: "frame0 . . timecode0" ". range range thumb" "frame1 . . timecode1";
-    border-bottom: 1px solid lightslategrey;
+    --matchType-added: #008b8b22;
+    --matchType-removed: #ff000022;
+    --matchType-match: #00008b22;
+    --matchType-changed: #00640022;
+    --matchType-moved: #ffa50022;
+    --matchType-moved_from: #ff00ff22;
+    --matchType-moved_to: #3cb37122;
+    border-bottom: 1px solid #778899;
     /*padding: 5px;*/
     display: flex;
 }
+
+.DiffRangeComponent__placeholder {
+    flex: 1;
+    background: #77889922;
+}
+
+.DiffRangeComponent-added .DiffRangeComponent__range-1{
+background: var(--matchType-added);
+}
+
+.DiffRangeComponent-removed .DiffRangeComponent__range-0 {
+background: var(--matchType-removed);
+}
+
+.DiffRangeComponent-changed {
+background: var(--matchType-changed);
+}
+
+/*.DiffRangeComponent-moved_from {*/
+/*background: var(--matchType-moved_from);*/
+/*}*/
 
 .layout-split .DiffRangeComponent__range-0 {
     --template: "frame0 . . timecode0" ". range range thumb" "frame1 . . timecode1";

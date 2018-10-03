@@ -1,9 +1,6 @@
 import {ReactElementProps} from "../../common/react-interfaces";
-import Row from "../layout/Row";
 import * as React from "react";
 import ThumbsStripComponent from "../video/ThumbsStripComponent";
-import {RangeComponent} from "./RangeComponent";
-import Col from "../layout/Col";
 import "./range.css";
 import "./DiffRangeComponent.css";
 import {classNameFrom} from "../../utils/CSSUtils";
@@ -116,10 +113,10 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
         </div>
     }
 
-    return (<div className={`${NAME} layout-${LayoutMode[layout].toLowerCase()} ${classNameFrom(className)}`}
+    return (<div className={`${NAME} ${NAME}-${matchType.toLowerCase()} layout-${LayoutMode[layout].toLowerCase()} ${classNameFrom(className)}`}
                  ref={el => _el = el}>
-        {renderRange(r1, tcRange.r1, 0)}
-        {renderRange(r2, tcRange.r2, 1)}
+        {matchType != MatchType.ADDED ? renderRange(r1, tcRange.r1, 0) : <div className={`${NAME}__placeholder`}></div>}
+        {matchType != MatchType.REMOVED ? renderRange(r2, tcRange.r2, 1) : <div className={`${NAME}__placeholder`}></div>}
     </div>);
 };
 // @ts-ignore

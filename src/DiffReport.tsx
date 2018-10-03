@@ -15,12 +15,12 @@ interface Props {
     ranges: DiffRange[];
     sourceVideo: IVideo;
     comparedVideo: IVideo;
-
+    eventTypes: string[];
     getImage (videoId: string, page: number): Promise<HTMLImageElement>
 }
 
 interface State {
-    types: { [type: string]: boolean };
+    excludedTypes: { [type: string]: boolean };
     range: DiffRange;
     shortEvents: boolean;
     minFrames: number;
@@ -34,6 +34,7 @@ class DiffReport extends React.Component<Props, State> {
     static displayName = "DiffReport";
     private readonly thumbsStrip: ThumbsStrip;
     private rangesContainer: HTMLDivElement;
+    private eventsCount: any;
 
     constructor (props: Props) {
         super(props);
@@ -42,10 +43,17 @@ class DiffReport extends React.Component<Props, State> {
         }
         this.state = {
             range : null,
-            types : Object.assign({}, MatchType as any),
+            excludedTypes : {},
             shortEvents : false,
             minFrames : 4
         };
+        this.eventsCount = props.ranges.reduce((counts: any, range) => {
+            if (!counts[range.matchType]) {
+                counts[range.matchType] = 0;
+            }
+            counts[range.matchType] += 1;
+            return counts;
+        }, {});
     }
 
     componentDidMount () {
@@ -55,20 +63,14 @@ class DiffReport extends React.Component<Props, State> {
     }
 
     render () {
-        const {ranges, comparedVideo, sourceVideo, getImage} = this.props;
-        const {types, range, shortEvents, minFrames} = this.state;
-        const eventsCount = ranges.reduce((counts: any, range) => {
-            if (!counts[range.matchType]) {
-                counts[range.matchType] = 0;
-            }
-            counts[range.matchType] += 1;
-            return counts;
-        }, {});
+        const {ranges, comparedVideo, sourceVideo, getImage, eventTypes} = this.props;
+        const {excludedTypes, range, shortEvents, minFrames} = this.state;
+
         return (
             <div className={DiffReport.displayName}>
                 {/*<Row className={`${DiffReport.displayName}__header`} gap={"10px"}>*/}
-                    {/*<DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}*/}
-                                  {/*getImage={getImage} rangeSelected={this.rangeSelected} selectedRange={range}/>*/}
+                {/*<DiffTimeline comparedVideo={comparedVideo} ranges={ranges} sourceVideo={sourceVideo}*/}
+                {/*getImage={getImage} rangeSelected={this.rangeSelected} selectedRange={range}/>*/}
                 {/*</Row>*/}
                 <div className={`${DiffReport.displayName}__ranges container`} ref={el => this.rangesContainer = el}>
                     <Row>
@@ -106,14 +108,14 @@ class DiffReport extends React.Component<Props, State> {
                                     Compare events:
                                 </div>
                                 <List>
-                                    {Object.keys(MatchType).map(type => {
+                                    {eventTypes.map(type => {
                                         return (
                                             <li key={type}>
                                                 <input type="checkbox" id={type} value={type}
-                                                       checked={!!types[type]}
+                                                       checked={!excludedTypes[type]}
                                                        onChange={e => this.toggleType(type)}/>
                                                 <label htmlFor={type}>
-                                                    {type} ({eventsCount[type] || 0})
+                                                    {type} ({this.eventsCount[type] || 0})
                                                 </label>
                                             </li>
                                         )
@@ -158,12 +160,13 @@ class DiffReport extends React.Component<Props, State> {
     };
 
     rangesFilter = (r: DiffRange) => {
-        const {types, shortEvents, minFrames} = this.state;
+        const {excludedTypes, shortEvents, minFrames} = this.state;
         const {r1, r2} = r;
+        let includedType = !excludedTypes[r.matchType];
         if (!shortEvents) {
-            return (r1.length > minFrames || r2.length > minFrames) && !!types[r.matchType];
+            return (r1.length > minFrames || r2.length > minFrames) && includedType;
         }
-        return !!types[r.matchType]
+        return includedType
     };
 
     private renderRanges () {
@@ -191,9 +194,9 @@ class DiffReport extends React.Component<Props, State> {
 
 
     private toggleType (type: string) {
-        const types = Object.assign({}, this.state.types);
-        types[type] = !this.state.types[type];
-        this.setState({types});
+        const excludedTypes = Object.assign({}, this.state.excludedTypes);
+        excludedTypes[type] = !this.state.excludedTypes[type];
+        this.setState({excludedTypes});
     }
 }
 
