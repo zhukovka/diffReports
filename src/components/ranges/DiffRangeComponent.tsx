@@ -14,6 +14,8 @@ import TapeTimecode from "bigfootjs/dist/TapeTimecode";
 import {TimecodeDiffRange} from "bigfootjs/dist/TimecodeRange";
 import {IRange} from "bigfootjs/dist/Range";
 import {TimecodeRange} from "bigfootjs/src/TimecodeRange";
+import {MouseEvent} from "react";
+import {RangeBoard} from "./RangeBoard";
 
 interface Props extends ReactElementProps {
     range: DiffRange;
@@ -64,15 +66,13 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
     let tc1 = new TapeTimecode(sourceVideo.isDropFrame, sourceVideo.startTimecode, sourceVideo.timecodeRate);
     let tc2 = new TapeTimecode(comparedVideo.isDropFrame, comparedVideo.startTimecode, comparedVideo.timecodeRate);
     let tcRange: TimecodeDiffRange = TimecodeDiffRange.toTimecode(range, tc1, tc2);
-    let getThumbsStripComponent = function (range: IRange, length: number, rangeNumber: number) {
-        let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(range.frame, length, dCols);
+    let getThumbsStripComponent = function (startFrame: number, length: number, rangeNumber: number) {
+        let rows: Map<FrameStrip, Strip>[] = thumbsStrip.framesToCanvas(startFrame, length, dCols);
         let width = frameWidth * Math.min(length, dCols);
         return <ThumbsStripComponent strips={rows}
                                      width={width}
                                      height={frameHeight * rows.length}
-                                     getImage={frame => {
-                                         return _getImage(frame, rangeNumber);
-                                     }}/>;
+                                     getImage={(f) => _getImage(f, rangeNumber)}/>;
     };
 
     const _getImage = (frame: number, rangeNumber: number) => {
@@ -84,6 +84,19 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
         return <DiffRangeBoard getImage={_getImage} range={range} thumbsStrip={thumbsStrip} cols={dCols}/>
     }
 
+    function renderThumbs (r: IRange, rangeNumber: number) {
+        const cols = dCols / 2 | 0;
+        const prev = r.frame - cols;
+        const next = r.frame + r.length;
+        const total = rangeNumber === 0 ? sourceVideo.framesTotal : comparedVideo.framesTotal;
+        return <div className={`${NAME}__thumbs`}>
+            {prev >= 0 && getThumbsStripComponent(prev, cols, rangeNumber)}
+            <RangeBoard range={r} getImage={(f) => _getImage(f, rangeNumber)} thumbsStrip={thumbsStrip}
+                        cols={cols}/>
+            {next < total && getThumbsStripComponent(next, cols, rangeNumber)}
+        </div>;
+    }
+
     function renderRange (r: IRange, tcr: TimecodeRange, rangeNumber: number) {
         return <div className={`${NAME}__range-${rangeNumber}`}>
             <div className={`${NAME}__frame-start`}>
@@ -93,7 +106,7 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
                 {r.frame + r.length}
             </div>
             <div className={`${NAME}__thumb`}>
-                {r.length ? getThumbsStripComponent(r, 1, rangeNumber)
+                {r.length ? getThumbsStripComponent(r.frame, 1, rangeNumber)
                     :
                     <Placeholder height={`${thumbsStrip.frameHeight}px`} width={`${thumbsStrip.frameWidth}px`}/>
                 }
@@ -110,13 +123,23 @@ const DiffRangeComponent = ({range, sourceVideo, comparedVideo, thumbsStrip, get
             <div className={`${NAME}__timecode-end`}>
                 {!!tcr && <b>{tcr.end}</b>}
             </div>
+            {view == ViewMode.DETAILED && renderThumbs(r, rangeNumber)}
         </div>
     }
 
-    return (<div className={`${NAME} ${NAME}-${matchType.toLowerCase()} layout-${LayoutMode[layout].toLowerCase()} ${classNameFrom(className)}`}
-                 ref={el => _el = el}>
+    function rangeClick (e: MouseEvent) {
+        if (_el) {
+            onClick(_el)
+        }
+    }
+
+    return (<div
+        className={`${NAME} ${NAME}-${matchType.toLowerCase()} layout-${LayoutMode[layout].toLowerCase()} ${classNameFrom(className)}`}
+        ref={el => _el = el}
+        onClick={rangeClick}>
         {matchType != MatchType.ADDED ? renderRange(r1, tcRange.r1, 0) : <div className={`${NAME}__placeholder`}></div>}
-        {matchType != MatchType.REMOVED ? renderRange(r2, tcRange.r2, 1) : <div className={`${NAME}__placeholder`}></div>}
+        {matchType != MatchType.REMOVED ? renderRange(r2, tcRange.r2, 1) :
+            <div className={`${NAME}__placeholder`}></div>}
     </div>);
 };
 // @ts-ignore

@@ -29,20 +29,21 @@
     background: var(--matchType-changed);
 }
 
-.DiffRangeComponent-moved_from .DiffRangeComponent__range-0{
+.DiffRangeComponent-moved_from .DiffRangeComponent__range-0 {
     background: var(--matchType-removed);
 }
-.DiffRangeComponent-moved_from .DiffRangeComponent__range-1{
+
+.DiffRangeComponent-moved_from .DiffRangeComponent__range-1 {
     background: var(--matchType-added);
 }
 
 .layout-split .DiffRangeComponent__range-0 {
-    --template-areas: "frame0 . . timecode0" ". range range thumb" "frame1 . . timecode1";
+    --template-areas: "frame0 . . timecode0" ". range range thumb" "frame1 . . timecode1" "thumbs thumbs thumbs thumbs";
     /*border-right: 2px solid;*/
 }
 
 .layout-split .DiffRangeComponent__range-1 {
-    --template-areas: "timecode0 . . frame0" "thumb range range ." "timecode1 . . frame1";
+    --template-areas: "timecode0 . . frame0" "thumb range range ." "timecode1 . . frame1" "thumbs thumbs thumbs thumbs";
 }
 
 .DiffRangeComponent__range-0, .DiffRangeComponent__range-1 {
@@ -92,4 +93,8 @@
 
 .DiffRangeComponent__timecode-end {
     grid-area: timecode1;
+}
+
+.DiffRangeComponent__thumbs {
+    grid-area: thumbs;
 }
