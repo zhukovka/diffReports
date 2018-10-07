@@ -7,6 +7,7 @@ module.exports = {
         home: './src/index.tsx',
         project: './src/project.tsx',
         test: './src/test.tsx',
+        worker: './src/worker.ts'
     },
     devtool: 'inline-source-map',
     mode: (process.env.NODE_ENV === 'development') ? 'development' : 'production',
@@ -27,6 +28,11 @@ module.exports = {
                 exclude: /node_modules/
             },
             {
+                test: /\.mjs$/,
+                include: /node_modules/,
+                type: "javascript/auto",
+            },
+            {
                 test: /\.css$/,
                 use: [
                     {
@@ -43,7 +49,7 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: ['.tsx', '.ts', '.js']
+        extensions: ['.tsx', '.ts', '.js', '.wasm', '.mjs', '.json']
     },
     output: {
         filename: '[name].bundle.js',

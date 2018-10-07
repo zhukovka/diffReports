@@ -130,7 +130,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst 
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nclass DiffReportsApi {\n    constructor(projectId) {\n        this.projectId = projectId;\n        this.imageMap = new Map();\n    }\n    getImage(videoId, page) {\n        let padStart = String(page + 1).padStart(3, '0');\n        const imgSrc = `${videoId}/stripes/out${padStart}.jpg`;\n        return new Promise((resolve, reject) => {\n            let img;\n            if (this.imageMap.has(imgSrc)) {\n                img = this.imageMap.get(imgSrc);\n                resolve(img);\n            }\n            else {\n                img = new Image();\n                img.src = imgSrc;\n                img.onload = () => {\n                    resolve(img);\n                    this.imageMap.set(img.src, img);\n                };\n                img.onerror = reject;\n            }\n        });\n    }\n}\nexports.default = DiffReportsApi;\n\n\n//# sourceURL=webpack:///./src/model/DiffReportsApi.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst graphql_1 = __webpack_require__(/*! graphql */ \"graphql\");\nconst IndexedClient_1 = __webpack_require__(/*! indexed-mongo/dist/IndexedClient */ \"indexed-mongo/dist/IndexedClient\");\nconst DiffResolver = {\n    ranges(args, context, info) {\n        return context.db.collection(\"ranges\").then(c => c.find().toArray());\n    }\n};\n// Construct a schema, using GraphQL schema language\nconst schema = graphql_1.buildSchema(`\ntype IRange {\n    frame: Int\n    length: Int\n}\ntype DiffRange {\n    r1: IRange\n    r2: IRange\n    movedTo: IRange\n    matchType: String\n}\ntype Query {\n  ranges: [DiffRange]!\n}\n`);\nconst context = {};\n// const worker = new Worker(\"worker.bundle.js\");\n// console.log(\"DiffResolver ranges worker\");\n// worker.onmessage = (e) => {\n//     console.log(\"message\", e);\n// };\nclass DiffReportsApi {\n    constructor(projectId) {\n        this.projectId = projectId;\n        this.imageMap = new Map();\n        // The root provides a resolver function for each API endpoint\n    }\n    query(q) {\n        if (!context.db) {\n            return IndexedClient_1.IndexedClient.connect(this.projectId).then((db) => {\n                context.db = db;\n                return graphql_1.graphql(schema, q, DiffResolver, context);\n            });\n        }\n        return graphql_1.graphql(schema, q, DiffResolver, context);\n    }\n    getImage(videoId, page) {\n        let padStart = String(page + 1).padStart(3, '0');\n        const imgSrc = `${videoId}/stripes/out${padStart}.jpg`;\n        return new Promise((resolve, reject) => {\n            let img;\n            if (this.imageMap.has(imgSrc)) {\n                img = this.imageMap.get(imgSrc);\n                resolve(img);\n            }\n            else {\n                img = new Image();\n                img.src = imgSrc;\n                img.onload = () => {\n                    resolve(img);\n                    this.imageMap.set(img.src, img);\n                };\n                img.onerror = reject;\n            }\n        });\n    }\n}\nexports.default = DiffReportsApi;\n\n\n//# sourceURL=webpack:///./src/model/DiffReportsApi.ts?");
 
 /***/ }),
 
@@ -198,6 +198,28 @@ eval("module.exports = require(\"dotenv\");\n\n//# sourceURL=webpack:///external
 /***/ (function(module, exports) {
 
 eval("module.exports = require(\"fs\");\n\n//# sourceURL=webpack:///external_%22fs%22?");
+
+/***/ }),
+
+/***/ "graphql":
+/*!**************************!*\
+  !*** external "graphql" ***!
+  \**************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = require(\"graphql\");\n\n//# sourceURL=webpack:///external_%22graphql%22?");
+
+/***/ }),
+
+/***/ "indexed-mongo/dist/IndexedClient":
+/*!***************************************************!*\
+  !*** external "indexed-mongo/dist/IndexedClient" ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = require(\"indexed-mongo/dist/IndexedClient\");\n\n//# sourceURL=webpack:///external_%22indexed-mongo/dist/IndexedClient%22?");
 
 /***/ }),
 

@@ -5,29 +5,25 @@ import DiffReportsApi from "./model/DiffReportsApi";
 import {DiffRange, MatchType} from "bigfootjs/dist/DiffRange";
 import {IVideo} from "bigfootjs/dist/Video";
 
-interface Props {
-    ranges: DiffRange[],
-    sourceVideo: IVideo,
-    comparedVideo: IVideo,
-    projectId: string
-}
-
-export const App = ({ranges, sourceVideo, comparedVideo, projectId}: Props) => {
+// ranges: DiffRange[], sourceVideo: IVideo, comparedVideo: IVideo,
+function diffReport (projectId: string) {
     let api = new DiffReportsApi(projectId);
-    return (<DiffReport comparedVideo={comparedVideo}
-                        ranges={ranges.filter(r => r.matchType != MatchType.MOVED_TO && r.matchType != MatchType.MOVED)}
-                        sourceVideo={sourceVideo}
-                        eventTypes={Object.keys(MatchType).filter(type => type != MatchType.MOVED_TO && type != MatchType.MOVED)}
-                        getImage={api.getImage.bind(api)}/>);
-};
-
-function diffReport (ranges: DiffRange[], sourceVideo: IVideo, comparedVideo: IVideo, projectId: string) {
-    const app = document.getElementById("app");
-    ReactDOM.hydrate(<App projectId={projectId} comparedVideo={comparedVideo} ranges={ranges}
-                          sourceVideo={sourceVideo}/>, app);
+    // graphql(schema, `query Matches { matches{movieId} }`, root, context)
+    api.query('query Ranges { ranges {matchType} }').then((response: any) => {
+        console.log(response);
+    });
+//     console.log("diff");
+//
+//
+//     //${JSON.stringify(ranges)}, ${JSON.stringify(sourceVideo)}, ${JSON.stringify(comparedVideo)}, "${projectId}"
+//     // const app = document.getElementById("app");
+// Render basic layout
+// ReactDOM.hydrate(<App projectId={projectId} comparedVideo={comparedVideo} ranges={ranges}
+//                       sourceVideo={sourceVideo}/>, app);
 }
 
-
+//
+//
 if (typeof window != "undefined") {
 // @ts-ignore
     window.diffReport = diffReport;

@@ -2,7 +2,6 @@ import {readProjectJson, readRangesJson, readVideoJson} from "./projectUtils";
 import * as React from "react";
 import {renderToString} from "react-dom/server";
 import * as fs from "fs";
-import {App} from "../src/project";
 import {exec} from "child_process";
 
 require('dotenv').config();
@@ -69,11 +68,17 @@ function generateHTML (projectId: string, comparedMov: string) {
     }
 
     let ranges = readRangesJson(projectId, comparedMov);
-    const app = renderToString(<App projectId={projectId} comparedVideo={comparedVideo} ranges={ranges}
-                                    sourceVideo={sourceVideo}/>);
-
+    // const app = renderToString(<App projectId={projectId} comparedVideo={comparedVideo} ranges={ranges}
+    //                                 sourceVideo={sourceVideo}/>);
+    const app = "";
+    const data = {ranges, comparedVideo, sourceVideo, projectId, type : "INITIAL"};
     const script = `<script>
-            diffReport(${JSON.stringify(ranges)}, ${JSON.stringify(sourceVideo)}, ${JSON.stringify(comparedVideo)}, "${projectId}");
+        const worker = new Worker("worker.bundle.js");
+        worker.postMessage(${JSON.stringify(data)});
+        worker.onmessage = (e) => {
+            console.log("generator message",e);
+            diffReport("${projectId}");
+        };
     </script>`;
 
     const html = htmlTemplate(projectId, app, script);
@@ -90,6 +95,7 @@ if (!fs.existsSync(reportDir)) {
 }
 
 
+fs.copyFileSync(`${process.env.BUNDLE_PATH}/worker.bundle.js`, `${process.env.REPORTS_PATH}/${projectId}/worker.bundle.js`);
 fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `${process.env.REPORTS_PATH}/${projectId}/project.bundle.js`);
 fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `${process.env.REPORTS_PATH}/${projectId}/project.css`);
 fs.copyFileSync(`${process.env.BUNDLE_PATH}/vglogo.png`, `${process.env.REPORTS_PATH}/${projectId}/vglogo.png`);
