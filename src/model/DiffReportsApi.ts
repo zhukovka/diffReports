@@ -1,57 +1,50 @@
-import {graphql, buildSchema, GraphQLSchema} from 'graphql';
-import {Db} from "indexed-mongo/dist/Db";
-import {IndexedClient} from "indexed-mongo/dist/IndexedClient";
+import {DiffResponse, MessageType, QueryResponse} from "./DiffMessage";
 
-interface DiffContext {
-    db?: Db
-}
-
-const DiffResolver = {
-    ranges (args: any, context: DiffContext, info: any) {
-        return context.db.collection("ranges").then(c => c.find().toArray())
-    }
-};
-
-// Construct a schema, using GraphQL schema language
-const schema = buildSchema(`
-type IRange {
-    frame: Int
-    length: Int
-}
-type DiffRange {
-    r1: IRange
-    r2: IRange
-    movedTo: IRange
-    matchType: String
-}
-type Query {
-  ranges: [DiffRange]!
-}
-`);
-
-const context: DiffContext = {};
-
-// const worker = new Worker("worker.bundle.js");
-// console.log("DiffResolver ranges worker");
-// worker.onmessage = (e) => {
-//     console.log("message", e);
-// };
+type Resolver<T> = (value?: T | PromiseLike<T>) => void;
 
 class DiffReportsApi {
     private imageMap: Map<string, HTMLImageElement> = new Map();
+    private queryQueue: Map<string, Array<Resolver<DiffResponse>>> = new Map();
+    private worker: Worker;
 
     constructor (private projectId: string) {
-        // The root provides a resolver function for each API endpoint
+        console.log("DiffResolver ranges worker");
+        this.worker = new Worker("worker.bundle.js");
+        this.worker.onmessage = (e) => {
+            console.log("message", e);
+            this.sendResponse(e.data);
+        };
+        this.worker.postMessage({type : MessageType.CONTEXT, dbName : projectId});
     }
 
-    query (q: string) {
-        if (!context.db) {
-            return IndexedClient.connect(this.projectId).then((db) => {
-                context.db = db;
-                return graphql(schema, q, DiffResolver, context);
-            });
+    sendResponse (response: DiffResponse) {
+        console.log(response);
+        switch (response.type) {
+            case MessageType.QUERY:
+                return this.resolveQuery(response as QueryResponse);
         }
-        return graphql(schema, q, DiffResolver, context)
+    }
+
+    private resolveQuery ({query, result}: QueryResponse) {
+        //get all matching query resolvers from the queue
+        const resolvers = this.queryQueue.get(query);
+        //resolve all matching query promises
+        for (const resolve of resolvers) {
+            resolve(result);
+        }
+        //clear the queue of matching query resolvers
+        this.queryQueue.delete(query);
+    }
+
+
+    query (q: string): Promise<QueryResponse> {
+        if (!this.queryQueue.has(q)) {
+            this.queryQueue.set(q, []);
+            this.worker.postMessage({type : MessageType.QUERY, query : q});
+        }
+        return new Promise(resolve => {
+            this.queryQueue.get(q).push(resolve);
+        });
     }
 
     getImage (videoId: string, page: number): Promise<HTMLImageElement> {

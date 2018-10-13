@@ -1,41 +1,27 @@
-import {DiffRange} from "bigfootjs/dist/DiffRange";
-import {IVideo} from "bigfootjs/dist/Video";
-import {IndexedClient} from "indexed-mongo/dist/IndexedClient";
-let id;
-const worker: Worker = self as any;
+import {MessageType} from "./model/DiffMessage";
+import DiffWorker from "./model/DiffWorker";
+
+const worker: DiffWorker = new DiffWorker();
+
+
 onmessage = (e) => {
-    console.log(e);
-    if (e.data.type == "INITIAL") {
-        const {ranges, comparedVideo, sourceVideo, projectId} = e.data;
-        id = projectId;
-        IndexedClient.connect(projectId).then(function (db) {
-            console.log(db.version);
-            if (db.version == 1) {
-                // Create a collection
-                Promise.all([
-                    db.createCollection("ranges").then(function (collection) {
-                        // Insert a document in the collection
-                        collection.insertMany(ranges).then(function (r) {
-                            console.log("ranges", r);
-                        });
-                    }),
-                    db.createCollection("videos").then(collection => {
-                        collection.insertMany([comparedVideo, sourceVideo]).then(function (r) {
-                            console.log("videos", r);
-                        });
-                    })
-                ]).then(res => {
-                    // db.close();
-                    worker.postMessage({result : res});
-                    // db.collection("another_collection").then(c => {
-                    //     c.find().toArray().then(values => {
-                    //         console.log(values);
-                    //     })
-                    // })
-                });
-            } else {
-                worker.postMessage({result : "ok"});
-            }
-        });
+    console.log(e.data);
+    switch (e.data.type) {
+        case MessageType.INITIAL:
+            worker.initialWrite(e.data).then(res => {
+                postMessage({result : res});
+            });
+            break;
+        case MessageType.CONTEXT:
+            worker.createContext(e.data.dbName).then(context => {
+                postMessage({type : MessageType.CONTEXT});
+            });
+            break;
+        case MessageType.QUERY:
+            worker.executeQuery(e.data).then(res => {
+                console.log(res);
+                postMessage({type : MessageType.QUERY, result : res.data, query : e.data.query});
+            });
+            break;
     }
 };

@@ -11,7 +11,7 @@ function diffReport (projectId: string) {
     // graphql(schema, `query Matches { matches{movieId} }`, root, context)
     api.query('query Ranges { ranges {matchType} }').then((response: any) => {
         console.log(response);
-    });
+    }).catch(err => console.error(err));
 //     console.log("diff");
 //
 //

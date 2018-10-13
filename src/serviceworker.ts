@@ -7,8 +7,8 @@ const CACHED_URLS = [
     // Stylesheets
     "/project.css",
     // JavaScript
-    "/project.bundle.js",
-    "/worker.bundle.js",
+    // "/project.bundle.js",
+    // "/worker.bundle.js",
     // Images
     "/vglogo.png"
     // JSON

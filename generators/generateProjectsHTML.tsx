@@ -3,6 +3,7 @@ import * as React from "react";
 import {renderToString} from "react-dom/server";
 import * as fs from "fs";
 import {exec} from "child_process";
+import {MessageType} from "../src/model/DiffMessage";
 
 require('dotenv').config();
 
@@ -65,10 +66,11 @@ function generateHTML (projectId: string, comparedMov: string) {
         });
     }
 
-    const copyDist = `find ${process.env.BUNDLE_PATH}/ ! -name test.bundle.js -exec cp -t ${process.env.REPORTS_PATH}/${projectId}/ {} +`;
+    const copyDist = `find ${process.env.BUNDLE_PATH}/ ! -name test.bundle.js -type f -exec cp {} ${process.env.REPORTS_PATH}/${projectId}/ \\;`;
     let dist = exec(copyDist, function (err, stdout, stderr) {
         if (err) {
             // should have err.code here?
+            console.log(err)
         }
         console.log(stdout);
     });
@@ -79,7 +81,7 @@ function generateHTML (projectId: string, comparedMov: string) {
     // const app = renderToString(<App projectId={projectId} comparedVideo={comparedVideo} ranges={ranges}
     //                                 sourceVideo={sourceVideo}/>);
     const app = "";
-    const data = {ranges, comparedVideo, sourceVideo, projectId, type : "INITIAL"};
+    const data = {ranges, comparedVideo, sourceVideo, projectId, type : MessageType.INITIAL};
     const script = `<script>
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("serviceworker.bundle.js").then(function (registration) {
