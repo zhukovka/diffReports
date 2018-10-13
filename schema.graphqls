@@ -1,0 +1,24 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type IRange {
+    frame: Int
+    length: Int
+}
+
+type DiffRange {
+    r1: IRange
+    r2: IRange
+    movedTo: IRange
+    matchType: String
+}
+
+type Query {
+    ranges: [DiffRange]!
+}
+
+type Mutation {
+
+}

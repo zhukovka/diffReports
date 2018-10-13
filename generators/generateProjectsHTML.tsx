@@ -49,8 +49,6 @@ function generateHTML (projectId: string, comparedMov: string) {
     const comparedVideo = readVideoJson(comparedMov);
 
     if (!fs.existsSync(`${reportDir}/${sourceMov}`)) {
-        // fs.mkdirSync(`${reportDir}/${sourceMov}`);
-        // fs.mkdirSync(`${reportDir}/${comparedMov}`);
         let copySource = `mkdir -p ${reportDir}/${sourceMov} && cp -r ${storageDir}/${sourceMov}/stripes ${reportDir}/${sourceMov}`;
         let copyCompared = `mkdir -p ${reportDir}/${comparedMov} && cp -r ${storageDir}/${comparedMov}/stripes ${reportDir}/${comparedMov}`;
         console.log(copySource);
@@ -67,12 +65,29 @@ function generateHTML (projectId: string, comparedMov: string) {
         });
     }
 
+    const copyDist = `find ${process.env.BUNDLE_PATH}/ ! -name test.bundle.js -exec cp -t ${process.env.REPORTS_PATH}/${projectId}/ {} +`;
+    let dist = exec(copyDist, function (err, stdout, stderr) {
+        if (err) {
+            // should have err.code here?
+        }
+        console.log(stdout);
+    });
+    console.log(copyDist)
+
     let ranges = readRangesJson(projectId, comparedMov);
+    // let schema = fs.readFileSync('schema.graphqls', 'utf-8');
     // const app = renderToString(<App projectId={projectId} comparedVideo={comparedVideo} ranges={ranges}
     //                                 sourceVideo={sourceVideo}/>);
     const app = "";
     const data = {ranges, comparedVideo, sourceVideo, projectId, type : "INITIAL"};
     const script = `<script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("serviceworker.bundle.js").then(function (registration) {
+                console.log("Service Worker registered with scope:", registration.scope);
+            }).catch(function (err) {
+                console.log("Service Worker registration failed:", err);
+            });
+        }
         const worker = new Worker("worker.bundle.js");
         worker.postMessage(${JSON.stringify(data)});
         worker.onmessage = (e) => {
@@ -94,14 +109,6 @@ if (!fs.existsSync(reportDir)) {
     fs.mkdirSync(reportDir);
 }
 
-
-fs.copyFileSync(`${process.env.BUNDLE_PATH}/worker.bundle.js`, `${process.env.REPORTS_PATH}/${projectId}/worker.bundle.js`);
-fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.bundle.js`, `${process.env.REPORTS_PATH}/${projectId}/project.bundle.js`);
-fs.copyFileSync(`${process.env.BUNDLE_PATH}/project.css`, `${process.env.REPORTS_PATH}/${projectId}/project.css`);
-fs.copyFileSync(`${process.env.BUNDLE_PATH}/vglogo.png`, `${process.env.REPORTS_PATH}/${projectId}/vglogo.png`);
-
-//    mkdir -p reports/salt_color_trim3k/salt_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/ "$_"
-//    mkdir -p reports/salt_color_trim3k/salt_dc_color_trim3k.mov/stripes/ && cp -r projects/storage/salt_color_trim3k.mov/stripes/ "$_"
 //    npm run bundle -- --projectId K01_K04 --comparedMov kid_brother_133_HD_prores_422hq_709_H264-TC-WM.mp4
 //    npm run bundle -- --projectId K02_K03 --comparedMov kid_brother_133_HD_prores_422hq_709_H264.mp4
 //    npm run bundle -- --projectId K03_K04 --comparedMov kid_brother_133_HD_prores_422hq_709_H264-TC-WM.mp4

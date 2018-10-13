@@ -7,7 +7,8 @@ module.exports = {
         home: './src/index.tsx',
         project: './src/project.tsx',
         test: './src/test.tsx',
-        worker: './src/worker.ts'
+        worker: './src/worker.ts',
+        serviceworker: './src/serviceworker.ts'
     },
     devtool: 'inline-source-map',
     mode: (process.env.NODE_ENV === 'development') ? 'development' : 'production',
