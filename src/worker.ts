@@ -1,7 +1,7 @@
 import {MessageType} from "./model/DiffMessage";
 import DiffWorker from "./model/DiffWorker";
 
-const worker: DiffWorker = new DiffWorker();
+const worker: DiffWorker = new DiffWorker("/schema.graphqls");
 
 
 onmessage = (e) => {

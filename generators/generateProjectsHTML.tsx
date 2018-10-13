@@ -67,14 +67,17 @@ function generateHTML (projectId: string, comparedMov: string) {
     }
 
     const copyDist = `find ${process.env.BUNDLE_PATH}/ ! -name test.bundle.js -type f -exec cp {} ${process.env.REPORTS_PATH}/${projectId}/ \\;`;
-    let dist = exec(copyDist, function (err, stdout, stderr) {
+    const copySchema = `cp schema.graphqls ${process.env.REPORTS_PATH}/${projectId}/`;
+
+    const copyBundles = `${copyDist}; ${copySchema}`;
+    let dist = exec(copyBundles, function (err, stdout, stderr) {
         if (err) {
             // should have err.code here?
             console.log(err)
         }
         console.log(stdout);
     });
-    console.log(copyDist)
+    console.log(copyBundles);
 
     let ranges = readRangesJson(projectId, comparedMov);
     // let schema = fs.readFileSync('schema.graphqls', 'utf-8');

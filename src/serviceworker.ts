@@ -10,8 +10,9 @@ const CACHED_URLS = [
     // "/project.bundle.js",
     // "/worker.bundle.js",
     // Images
-    "/vglogo.png"
+    "/vglogo.png",
     // JSON
+    "/schema.graphqls"
 ];
 const strategy = new CacheStrategy(CACHE_NAME);
 self.addEventListener("install", function (event: ExtendableEvent) {

@@ -1,6 +1,6 @@
 import {DiffResponse, InitialMessage, QueryMessage} from "./DiffMessage";
 import {IndexedClient} from "indexed-mongo/dist/IndexedClient";
-import {buildSchema, ExecutionResult, graphql} from "graphql";
+import {buildSchema, ExecutionResult, graphql, GraphQLSchema} from "graphql";
 import {DiffContext, DiffResolver} from "./DiffResolver";
 
 type Resolver<T> = (value?: T | PromiseLike<T>) => void;
@@ -9,6 +9,11 @@ class DiffWorker {
     private context: DiffContext = {};
     contextObservers: Array<Resolver<DiffContext>> = [];
     _contextUpdating: boolean;
+    private _schema: GraphQLSchema;
+
+    constructor (private schemaUrl: string) {
+    }
+
 
     set contextUpdating (v: boolean) {
         if (!v) {
@@ -18,14 +23,22 @@ class DiffWorker {
     }
 
     waitForContext (): Promise<DiffContext> {
-        if (!this._contextUpdating) {
+        if (!this._contextUpdating && this._schema) {
             return Promise.resolve(this.context);
         }
         return new Promise<DiffContext>(resolve => this.contextObservers.push(resolve))
     }
 
     executeQuery (msg: QueryMessage): Promise<ExecutionResult> {
-        return this.waitForContext().then((context) => graphql(schema, msg.query, DiffResolver, context));
+        return Promise.all([this.waitForContext(), this.getSchema()])
+            .then(([context, schema]: [DiffContext, GraphQLSchema]) => {
+                return graphql(schema, msg.query, DiffResolver, context);
+            });
+        // return this.waitForContext().then((context) => {
+        //     return this.getSchema().then(schema => {
+        //         return graphql(schema, msg.query, DiffResolver, context);
+        //     })
+        // });
         // if (!this.context.db) {
         //     //wait for context db
         //     return;
@@ -73,6 +86,19 @@ class DiffWorker {
         })
     }
 
+    getSchema (): Promise<GraphQLSchema> {
+        if (this._schema) {
+            return Promise.resolve(this._schema);
+        } else {
+            return fetch(this.schemaUrl)
+                .then(res => res.text())
+                .then(schema => {
+                    // Construct a schema, using GraphQL schema language
+                    this._schema = buildSchema(schema);
+                    return this._schema;
+                })
+        }
+    }
 
     createContext (dbname: string): Promise<DiffContext> {
         return this.updateContext(IndexedClient.connect(dbname).then((db) => {
@@ -80,24 +106,6 @@ class DiffWorker {
         }));
     }
 }
-
-
-// Construct a schema, using GraphQL schema language
-const schema = buildSchema(`
-type IRange {
-    frame: Int
-    length: Int
-}
-type DiffRange {
-    r1: IRange
-    r2: IRange
-    movedTo: IRange
-    matchType: String
-}
-type Query {
-  ranges: [DiffRange]!
-}
-`);
 
 
 export default DiffWorker;

@@ -1,6 +1,5 @@
 schema {
     query: Query
-    mutation: Mutation
 }
 
 type IRange {
@@ -17,8 +16,4 @@ type DiffRange {
 
 type Query {
     ranges: [DiffRange]!
-}
-
-type Mutation {
-
 }
