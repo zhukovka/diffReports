@@ -35,9 +35,13 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@types/express": "^4.16.0",
+    "@types/express-graphql": "^0.6.1",
     "bigfootjs": "github:videogorillas/bigfootjs",
-    "indexed-mongo": "github:zhukovka/indexed-mongo",
+    "express": "^4.16.4",
+    "express-graphql": "^0.6.12",
     "graphql": "^14.0.2",
+    "indexed-mongo": "github:zhukovka/indexed-mongo",
     "react": "^16.5.2",
     "react-dom": "^16.5.2"
   }
