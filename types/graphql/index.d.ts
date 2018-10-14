@@ -25,6 +25,7 @@ declare module 'graphql' {
         | ListValueNode
         | ObjectValueNode;
 
+    export type Location = {}
     export type VariableNode = {
         kind: 'Variable',
         loc?: Location,

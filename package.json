@@ -9,7 +9,7 @@
     "watch": "webpack --watch",
     "dev:build-generators": "NODE_ENV=development webpack --config webpack.generators.js --mode=development --display-error-details",
     "prod:build-generators": "webpack --config webpack.generators.js --mode=production --display-error-details",
-    "dev:server": "NODE_ENV=development webpack --config webpack.server.js --mode=development --display-error-details",
+    "dev:server": "NODE_ENV=development tsc -p tsconfig.server.json",
     "bundle": "NODE_ENV=production npm run build && npm run prod:build-generators && NODE_ENV=production node generators/generateProjectsHTML.js"
   },
   "author": "",
