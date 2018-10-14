@@ -9,6 +9,7 @@
     "watch": "webpack --watch",
     "dev:build-generators": "NODE_ENV=development webpack --config webpack.generators.js --mode=development --display-error-details",
     "prod:build-generators": "webpack --config webpack.generators.js --mode=production --display-error-details",
+    "dev:server": "NODE_ENV=development webpack --config webpack.server.js --mode=development --display-error-details",
     "bundle": "NODE_ENV=production npm run build && npm run prod:build-generators && NODE_ENV=production node generators/generateProjectsHTML.js"
   },
   "author": "",
@@ -37,11 +38,13 @@
   "dependencies": {
     "@types/express": "^4.16.0",
     "@types/express-graphql": "^0.6.1",
+    "@types/mongodb": "^3.1.12",
     "bigfootjs": "github:videogorillas/bigfootjs",
     "express": "^4.16.4",
     "express-graphql": "^0.6.12",
     "graphql": "^14.0.2",
     "indexed-mongo": "github:zhukovka/indexed-mongo",
+    "mongodb": "^3.1.8",
     "react": "^16.5.2",
     "react-dom": "^16.5.2"
   }

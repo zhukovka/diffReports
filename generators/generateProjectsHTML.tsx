@@ -4,6 +4,8 @@ import {renderToString} from "react-dom/server";
 import * as fs from "fs";
 import {exec} from "child_process";
 import {MessageType} from "../src/model/DiffMessage";
+import {MongoClient} from "mongodb";
+import {expect} from "chai";
 
 require('dotenv').config();
 
@@ -41,7 +43,6 @@ function writeRangesHTML (sourceId: string, html: string): string {
     return path;
 }
 
-
 function generateHTML (projectId: string, comparedMov: string) {
     let storageDir = `${process.env.PROJECT_STORAGE}`;
     const project = readProjectJson(projectId);
@@ -64,7 +65,17 @@ function generateHTML (projectId: string, comparedMov: string) {
         dir.on('exit', function (code) {
             // exit code is code
         });
+        const url = 'mongodb://localhost:27017';
+        let ranges = readRangesJson(projectId, comparedMov);
+        MongoClient.connect(url, function (err, client) {
+            // Create a collection we want to drop later
+            const col = client.db(projectId).collection('ranges');
+            col.insertMany(ranges).then(res => {
+                client.close();
+            });
+        });
     }
+
 
     const copyDist = `find ${process.env.BUNDLE_PATH}/ ! -name test.bundle.js -type f -exec cp {} ${process.env.REPORTS_PATH}/${projectId}/ \\;`;
     const copySchema = `cp schema.graphqls ${process.env.REPORTS_PATH}/${projectId}/`;
@@ -78,37 +89,35 @@ function generateHTML (projectId: string, comparedMov: string) {
         console.log(stdout);
     });
     console.log(copyBundles);
-
-    let ranges = readRangesJson(projectId, comparedMov);
     // let schema = fs.readFileSync('schema.graphqls', 'utf-8');
     // const app = renderToString(<App projectId={projectId} comparedVideo={comparedVideo} ranges={ranges}
     //                                 sourceVideo={sourceVideo}/>);
     const app = "";
-    const data = {ranges, comparedVideo, sourceVideo, projectId, type : MessageType.INITIAL};
-    const script = `<script>
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("serviceworker.bundle.js").then(function (registration) {
-                console.log("Service Worker registered with scope:", registration.scope);
-            }).catch(function (err) {
-                console.log("Service Worker registration failed:", err);
-            });
-        }
-        const worker = new Worker("worker.bundle.js");
-        worker.postMessage(${JSON.stringify(data)});
-        worker.onmessage = (e) => {
-            console.log("generator message",e);
-            diffReport("${projectId}");
-        };
-    </script>`;
+    // const data = {ranges, comparedVideo, sourceVideo, projectId, type : MessageType.INITIAL};
+    // const script = `<script>
+    //     if ("serviceWorker" in navigator) {
+    //         navigator.serviceWorker.register("serviceworker.bundle.js").then(function (registration) {
+    //             console.log("Service Worker registered with scope:", registration.scope);
+    //         }).catch(function (err) {
+    //             console.log("Service Worker registration failed:", err);
+    //         });
+    //     }
+    //     const worker = new Worker("worker.bundle.js");
+    //     worker.postMessage(${JSON.stringify(data)});
+    //     worker.onmessage = (e) => {
+    //         console.log("generator message",e);
+    //         diffReport("${projectId}");
+    //     };
+    // </script>`;
 
-    const html = htmlTemplate(projectId, app, script);
+    const html = htmlTemplate(projectId, app, "");
     return writeRangesHTML(projectId, html);
 }
 
 let {projectId, comparedMov} = program;
 let reportDir = `${process.env.REPORTS_PATH}/${projectId}`;
 
-console.log(fs.existsSync(reportDir))
+console.log(fs.existsSync(reportDir));
 if (!fs.existsSync(reportDir)) {
     console.log(`create ${reportDir}`);
     fs.mkdirSync(reportDir);
